@@ -28,7 +28,8 @@ class GeneticAlgorithm:
                  crossover_type :str,
                  mutation_type :str,
                  mutation_rate :float,
-                 eletism :bool
+                 eletism :bool,
+                 eletism_size :int
                 ) -> None:
         self.generations = generations # number of generations
         self.dimensions = dimensions # number of features
@@ -40,23 +41,36 @@ class GeneticAlgorithm:
         self.mutation_type = mutation_type
         self.mutation_rate = mutation_rate
         self.eletism = eletism
+        self.eletism_offset = eletism_size
 
-        if eletism:
-            self.eletism_offset = 2
-        else:
+        if not eletism:
             self.eletism_offset = 0
+        # else:
+            # self.eletism_offset = 2
 
 
     # population initialization
     def population_initialization(self) -> None:
         population = []
-        mu = 0
-        sigma = 3
-        for i in range(self.population_size):
-            chromosome = Chromosome(None)
-            chromosome.set_genes([random.gauss(mu, sigma) for x in range(self.dimensions)])
-            # chromosome = [random.gauss(mu, sigma) for x in range(self.dimensions)]
-            population.append(chromosome)
+
+        if self.initialization_type == "gaussian":
+            mu = 0
+            sigma = 3
+            for i in range(self.population_size):
+                chromosome = Chromosome(None)
+                chromosome.set_genes([random.gauss(mu, sigma) for x in range(self.dimensions)])
+                # chromosome = [random.gauss(mu, sigma) for x in range(self.dimensions)]
+                population.append(chromosome)
+        elif self.initialization_type == "uniform":
+            # scores = np.random.uniform(low=-5.12, high=5.12, size=self.population_size).tolist()
+            for i in range(self.population_size):
+                chromosome = Chromosome(None)
+                if self.fitness_function == 'rastrigin':
+                    chromosome.set_genes(np.random.uniform(low=-5.12, high=5.12, size=self.dimensions).tolist())
+                else:
+                    chromosome.set_genes(np.random.uniform(low=-100, high=100, size=self.dimensions).tolist())
+                population.append(chromosome)
+
         self.population = population.copy()
 
 
@@ -65,7 +79,14 @@ class GeneticAlgorithm:
     def fitness_score(self) -> None:
         for chromosome in self.population:
             # Set fitness score within each chromosome
-            chromosome.set_fitness_score(rastrigin_function(chromosome.get_genes(), self.dimensions))
+            # chromosome.set_fitness_score(rastrigin_function(chromosome.get_genes(), self.dimensions))
+            if self.fitness_function == "rastrigin":
+                chromosome.set_fitness_score(rastrigin_function(chromosome.get_genes(), self.dimensions))
+            elif self.fitness_function == "spherical":
+                chromosome.set_fitness_score(sphere_function(chromosome.get_genes()))
+            elif self.fitness_function == "rosenbrock":
+                chromosome.set_fitness_score(rosenbrock_function(chromosome.get_genes(), self.dimensions))
+
         # Sort population based on fitness score
         self.population.sort(key=lambda x: x.fitness_score) 
             
@@ -74,11 +95,17 @@ class GeneticAlgorithm:
         population_nextgen = []
         # Include eletism
         if self.eletism:
-            population_nextgen.append(copy.deepcopy(self.population[0]))
-            population_nextgen.append(copy.deepcopy(self.population[1]))
+            for i in range(self.eletism_offset):
+                population_nextgen.append(copy.deepcopy(self.population[i]))
+            # population_nextgen.append(copy.deepcopy(self.population[1]))
 
-        # Implement RWS
-        selections = roulette_wheel_selection(self.population[self.eletism_offset:], int((self.population_size - self.eletism_offset)/2))
+        if self.selection_type == "rws":
+            # Implement RWS
+            selections = roulette_wheel_selection(self.population[self.eletism_offset:], int((self.population_size - self.eletism_offset)/2))
+        elif self.selection_type == "tournament":
+            # Implement Tournament Selection
+            selections = tournament_selection(self.population[self.eletism_offset:], int((self.population_size - self.eletism_offset)/2), self.population_size - self.eletism_offset)
+        
         population_nextgen += selections
 
         self.population = population_nextgen.copy()
@@ -94,30 +121,48 @@ class GeneticAlgorithm:
         #     population_nextgen.append(copy.deepcopy(self.population[0]))
         #     population_nextgen.append(copy.deepcopy(self.population[1]))
 
-        # Two Point Crossover
-        # for i in range(self.eletism_offset, self.population_size, 2):
-        for i in range(0, required_children, 2):
-            child_1 = copy.deepcopy(self.population[i])
-            child_2 = copy.deepcopy(self.population[i+1])
+        if self.crossover_type == 'two_point':
+            # Two Point Crossover
+            # for i in range(self.eletism_offset, self.population_size, 2):
+            for i in range(0, required_children, 2):
+                child_1 = copy.deepcopy(self.population[i])
+                child_2 = copy.deepcopy(self.population[i+1])
 
-            first_cross_point = random.randint(0,self.dimensions)
-            second_cross_point = random.randint(0,self.dimensions)
-            # did we get the same point? have to deal with that
-            if( first_cross_point == second_cross_point ):
-                first_cross_point = 0
-                second_cross_point = self.dimensions
-            # are our swap indices not in order? have to deal with that
-            if( first_cross_point > second_cross_point ):
-                swaper = first_cross_point
-                first_cross_point = second_cross_point
-                second_cross_point = swaper
+                first_cross_point = random.randint(0,self.dimensions)
+                second_cross_point = random.randint(0,self.dimensions)
+                # did we get the same point? have to deal with that
+                if( first_cross_point == second_cross_point ):
+                    first_cross_point = 0
+                    second_cross_point = self.dimensions
+                # are our swap indices not in order? have to deal with that
+                if( first_cross_point > second_cross_point ):
+                    swaper = first_cross_point
+                    first_cross_point = second_cross_point
+                    second_cross_point = swaper
 
-            # Swap
-            child_1.genes[first_cross_point:second_cross_point] = self.population[i].genes[first_cross_point:second_cross_point]
-            child_2.genes[first_cross_point:second_cross_point] = self.population[i+1].genes[first_cross_point:second_cross_point]
+                # Swap
+                child_1.genes[first_cross_point:second_cross_point] = self.population[i].genes[first_cross_point:second_cross_point]
+                child_2.genes[first_cross_point:second_cross_point] = self.population[i+1].genes[first_cross_point:second_cross_point]
 
-            population_nextgen.append(child_1)
-            population_nextgen.append(child_2)
+                population_nextgen.append(child_1)
+                population_nextgen.append(child_2)
+
+        elif self.crossover_type == 'binary_mask':
+            # Binary Mask Crossover
+
+            for i in range(0, required_children, 2):
+                child_1 = copy.deepcopy(self.population[i])
+                child_2 = copy.deepcopy(self.population[i+1])
+
+                binary_mask = [random.randint(0, 1) for x in range(self.dimensions)]
+
+                for j in range(self.dimensions):
+                    if binary_mask[j] == 1:
+                        # Swap the values
+                        child_1.genes[j], child_2.genes[j] = child_2.genes[j], child_1.genes[j]
+
+                population_nextgen.append(child_1)
+                population_nextgen.append(child_2)
 
         self.population += population_nextgen
 
@@ -129,8 +174,10 @@ class GeneticAlgorithm:
         population_nextgen = []
         
         # Elitism
-        population_nextgen.append(copy.deepcopy(self.population[0]))
-        population_nextgen.append(copy.deepcopy(self.population[1]))
+        for j in range(self.eletism_offset):
+            population_nextgen.append(copy.deepcopy(self.population[j]))
+        # population_nextgen.append(copy.deepcopy(self.population[0]))
+        # population_nextgen.append(copy.deepcopy(self.population[1]))
 
         for i in range(self.eletism_offset, self.population_size):
             chromosome = copy.deepcopy(self.population[i])
@@ -180,32 +227,65 @@ class GeneticAlgorithm:
         plt.xlabel('generations')
         plt.show()
 
+    def print_best_chromosome(self) -> None:
+        print("-- FIRST GEN --")
+        print("Chromo: ", self.best_chromo[0].get_genes())
+        print("Score: ", self.best_chromo[0].get_fitness_score())
+        print("-- FINAL GEN --")
+        print("Chromo", self.best_chromo[-1].get_genes())
+        print("Score: ", self.best_chromo[-1].get_fitness_score())
 
 
 # ----------------------------------------------------------------------------------
-
 ### Helper Functions
 
+## Test Fitness Functions
 # Rastrigin Function
 def rastrigin_function(genes :[], dimensions :int) -> float:
     A = 10
     score = (A*dimensions) + sum([(x**2 - A * np.cos(2 * math.pi * x)) for x in genes])
     return score
+# Spherical Function
+def sphere_function(genes :[]) -> float:
+    score = sum([x**2 for x in genes])
+    return score
+# Rosenbrock Function
+def rosenbrock_function(genes :[], dimensions :int) -> float:
+    score = sum([(100 * ((genes[i+1] - (genes[i]**2))**2) + (1 - genes[i])**2) for i in range(dimensions-2)])
+    return score
 
 # Roulette Wheel Selection
-def roulette_wheel_selection(genes :[], num_to_select :int) -> []:
-        selected_genes = []
-        scores = [x.fitness_score for x in genes]
-        min_score = np.min(scores)
-        max_val = np.sum([min_score/score for score in scores])
-        for i in range(num_to_select):
-            pick = random.uniform(0, max_val)
-            current = 0
-            for j in range(len(genes)): 
-                current += (min_score / genes[j].get_fitness_score())
-                if current > pick: 
-                    selected_genes.append(copy.deepcopy(genes[j])) 
-                    break 
-            # selected_genes.append(copy.deepcopy(genes[j])) 
+# Gives higher priority to lower fitness score
+def roulette_wheel_selection(chromosomes :[], num_to_select :int) -> []:
+    selected_chromosomes = []
+    scores = [x.fitness_score for x in chromosomes]
+    min_score = np.min(scores)
+    max_val = np.sum([min_score/score for score in scores])
+    for i in range(num_to_select):
+        pick = random.uniform(0, max_val)
+        current = 0
+        for j in range(len(chromosomes)): 
+            current += (min_score / chromosomes[j].get_fitness_score())
+            if current > pick: 
+                selected_chromosomes.append(copy.deepcopy(chromosomes[j])) 
+                break 
+        # selected_genes.append(copy.deepcopy(genes[j])) 
 
-        return selected_genes
+    return selected_chromosomes
+
+
+# Tournament Selection
+def tournament_selection(chromosomes :[], num_to_select :int, population_size: int) -> []:
+    selected_chromosomes = []
+    nt_size = 5
+    for i in range(num_to_select):
+        indices = [random.randint(0, population_size-1) for x in range(nt_size)]
+
+        # find tournament winner between indices
+        chromosomes_subset = [chromosomes[j] for j in indices]
+        chromosomes_subset.sort(key=lambda x: x.fitness_score) 
+        # add tournament winner to selected genes
+        selected_chromosomes.append(copy.deepcopy(chromosomes_subset[0]))
+
+    return selected_chromosomes
+
