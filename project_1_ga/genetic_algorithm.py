@@ -27,9 +27,10 @@ class GeneticAlgorithm:
                  fitness_function :str, 
                  crossover_type :str,
                  mutation_type :str,
+                 termination_type :str,
                  mutation_rate :float,
                  eletism :bool,
-                 eletism_size :int
+                 eletism_size :int,
                 ) -> None:
         self.generations = generations # number of generations
         self.dimensions = dimensions # number of features
@@ -39,6 +40,7 @@ class GeneticAlgorithm:
         self.fitness_function = fitness_function
         self.crossover_type = crossover_type
         self.mutation_type = mutation_type
+        self.termination_type = termination_type # termination criteria
         self.mutation_rate = mutation_rate
         self.eletism = eletism
         self.eletism_offset = eletism_size
@@ -234,6 +236,30 @@ class GeneticAlgorithm:
         print("-- FINAL GEN --")
         print("Chromo", self.best_chromo[-1].get_genes())
         print("Score: ", self.best_chromo[-1].get_fitness_score())
+
+    def get_ga_statistics(self) -> ():
+        genes = self.best_chromo[-1].get_genes()
+        fitness_score = self.best_chromo[-1].get_fitness_score()
+
+        avg = np.average(genes)
+        std = np.std(genes)
+
+        return avg, std, fitness_score
+    
+    def get_plot(self) -> ():
+        # Average Plot
+        plt.plot(self.stats_min,'r')
+        plt.plot(self.stats_avg,'b')
+        plt.plot(self.stats_max,'g')
+        plt.ylabel('accuracy')
+        plt.xlabel('generations')
+        avg_plot = plt
+
+        # Standard Deviation Plot
+
+
+        # Values Plot
+
 
 
 # ----------------------------------------------------------------------------------

@@ -1,0 +1,17 @@
+init_type,sel_type,cross_type,mut_type,term_type,fitness_func,avg,std,fit_score
+gaussian,rws,two_point,,generations,rastrigin,-0.02540674542861915,0.03616982238746608,0.7659221083023731
+uniform,tournament,two_point,,required_average,rastrigin,-0.0025644601482659596,0.015433583811181442,0.09703572261593862
+gaussian,rws,binary_mask,,required_average,rastrigin,0.0324232571880535,0.026099781615052775,0.679830831245873
+uniform,tournament,binary_mask,,required_average,rastrigin,0.4971596905720981,0.45423591741872993,1.7311856065139217
+gaussian,tournament,binary_mask,,required_average,rastrigin,0.500272511986077,0.4654311567212497,1.403743356994191
+gaussian,rws,two_point,,required_average,rastrigin,0.5014123412839622,0.4594773564547337,1.570604125312677
+uniform,tournament,binary_mask,,generations,rastrigin,0.5099178013041817,0.4803387505561848,1.1724222855484001
+gaussian,tournament,two_point,,required_average,rastrigin,0.516416388693501,0.5284976153744062,1.5163450445690714
+gaussian,rws,binary_mask,,generations,rastrigin,0.531106973796452,0.5260790197942672,1.761261209538766
+uniform,rws,two_point,,generations,rastrigin,0.9853511559817518,0.015141179084929235,2.1170040345385317
+gaussian,tournament,two_point,,generations,rastrigin,0.9975868488466566,0.02227970723515904,2.1892734991370375
+uniform,rws,binary_mask,,generations,rastrigin,1.003207296744328,0.01749192958015572,2.138167732330068
+uniform,rws,binary_mask,,required_average,rastrigin,1.0122794026963307,0.06466598294724707,3.7407142469847514
+uniform,rws,two_point,,required_average,rastrigin,1.0651194634023926,0.01912185155011281,4.052841400780721
+gaussian,tournament,binary_mask,,generations,rastrigin,1.52699630037786,0.5379314082129741,6.086420753692231
+uniform,tournament,two_point,,generations,rastrigin,2.0128153501425934,1.0413456034200528,11.005360364448194
