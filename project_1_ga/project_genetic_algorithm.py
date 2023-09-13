@@ -5,9 +5,11 @@
 
 
 # Imports
+import numpy as np
 from genetic_algorithm import GeneticAlgorithm
 from itertools import product
 import pandas as pd
+from tqdm import tqdm
 
 
 def main():
@@ -19,7 +21,7 @@ def run_single_genetic_algorithm():
     population_size = 100
     initialization_type = "gaussian" # gaussian, uniform
     selection_type = "tournament" # rws, tournament
-    fitness_function = "rosenbrock" # rastrigin, spherical, rosenbrock
+    fitness_function = "rosenbrock" # rastrigin, spherical, rosenbrock, booth, himelblaus
     crossover_type = "binary_mask" # two_point, binary_mask
     mutation_type = ""
     termination_type = "" # generations, required_average
@@ -49,10 +51,13 @@ def run_single_genetic_algorithm():
 def run_genetic_algorithms():
     generations = 200
     dimensions = 2
-    population_size = 10
+    population_size = 50
     initialization_types = ["gaussian", "uniform"]
     selection_types = ["rws", "tournament"]
-    fitness_functions = ['rastrigin']#["rastrigin", "spherical", "rosenbrock"]
+    # All Dimensions
+    # fitness_functions = ["rastrigin", "spherical"] #["rastrigin", "spherical", "rosenbrock"]
+    # 2 Dimensions
+    fitness_functions = ["rastrigin", "spherical", "booth", "himelblaus"] #["rastrigin", "spherical", "rosenbrock"]
     crossover_types = ["two_point", "binary_mask"]
     mutation_types = [""]
     termination_types = ["generations", "required_average"]
@@ -75,9 +80,10 @@ def run_genetic_algorithms():
                              'mut_type': [],
                              'term_type': [],
                              'fitness_func': [],
-                             'avg': [],
-                             'std': [],
-                             'fit_score': []
+                             'avg_fit_score': [],
+                             'std_fit_score': [],
+                             'max_fit_score': [],
+                             'min_fit_score': [],
                              })
     
     print(type(ga_stats))
@@ -94,24 +100,35 @@ def run_genetic_algorithms():
         print(f"------ {i+1}/{len(operators)} ------\n")
         # print(operator)
 
-        ga = GeneticAlgorithm(generations=generations,
-                          dimensions=dimensions,
-                          population_size=population_size,
-                          initialization_type=initialization_type,
-                          selection_type=selection_type,
-                          fitness_function=fitness_function,
-                          crossover_type=crossover_type,
-                          mutation_type=mutation_type,
-                          mutation_rate=mutation_rate,
-                          termination_type=termination_type,
-                          eletism=eletism,
-                          eletism_size = eletism_size
-        )
+        fitness_scores = []
 
-        ga.run_generations()
-        avg, std, fitness_score = ga.get_ga_statistics()
-        # ga.print_best_chromosome()
-        # ga.plot_results()
+        for i in tqdm(range(100)):
+            ga = GeneticAlgorithm(generations=generations,
+                            dimensions=dimensions,
+                            population_size=population_size,
+                            initialization_type=initialization_type,
+                            selection_type=selection_type,
+                            fitness_function=fitness_function,
+                            crossover_type=crossover_type,
+                            mutation_type=mutation_type,
+                            mutation_rate=mutation_rate,
+                            termination_type=termination_type,
+                            eletism=eletism,
+                            eletism_size = eletism_size
+            )
+
+            ga.run_generations()
+            avg, std, fitness_score = ga.get_ga_statistics()
+            # ga.print_best_chromosome()
+            # ga.plot_results()
+
+            fitness_scores.append(fitness_score)
+
+
+        avg_fit_score = np.mean(fitness_scores)
+        std_fit_score = np.std(fitness_scores)
+        max_fit_score = max(fitness_scores)
+        min_fit_score = min(fitness_scores)
 
         data = {'init_type': initialization_type,
                    'sel_type': selection_type,
@@ -119,9 +136,10 @@ def run_genetic_algorithms():
                    'mut_type': mutation_type,
                    'term_type': termination_type,
                    'fitness_func': fitness_function,
-                   'avg': avg,
-                   'std': std,
-                   'fit_score': fitness_score,
+                   'avg_fit_score': avg_fit_score,
+                   'std_fit_score': std_fit_score,
+                   'max_fit_score': max_fit_score,
+                   'min_fit_score': min_fit_score,
                    }
         
         
@@ -135,7 +153,7 @@ def run_genetic_algorithms():
     print(ga_stats)
 
     # Sort values based on average
-    ga_stats = ga_stats.sort_values(by=['avg'])
+    ga_stats = ga_stats.sort_values(by=['avg_fit_score'])
 
     ga_stats.to_csv('results/ga_stats.csv', index=False)  # Set index=False to exclude row numbers in the output
 

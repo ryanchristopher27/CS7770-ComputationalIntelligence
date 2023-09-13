@@ -17,6 +17,8 @@ class GeneticAlgorithm:
     stats_min = []
     stats_max = []
     stats_avg = []
+    
+    mu = 0
 
     def __init__(self, 
                  generations :int, 
@@ -50,27 +52,30 @@ class GeneticAlgorithm:
         # else:
             # self.eletism_offset = 2
 
+        if fitness_function == 'rastrigin' or fitness_function == 'himelblaus':
+            self.sigma = 1.7
+            self.max = 5
+        elif fitness_function == 'spherical' or fitness_function == 'rosenbrock' or fitness_function == 'booth':
+            self.sigma = 3.3
+            self.max = 10
+
 
     # population initialization
     def population_initialization(self) -> None:
         population = []
 
         if self.initialization_type == "gaussian":
-            mu = 0
-            sigma = 3
             for i in range(self.population_size):
                 chromosome = Chromosome(None)
-                chromosome.set_genes([random.gauss(mu, sigma) for x in range(self.dimensions)])
+                chromosome.set_genes(np.random.normal(loc=self.mu, scale=self.sigma, size=self.dimensions).tolist())
+                # chromosome.set_genes([random.gauss(mu, sigma) for x in range(self.dimensions)])
                 # chromosome = [random.gauss(mu, sigma) for x in range(self.dimensions)]
                 population.append(chromosome)
         elif self.initialization_type == "uniform":
             # scores = np.random.uniform(low=-5.12, high=5.12, size=self.population_size).tolist()
             for i in range(self.population_size):
                 chromosome = Chromosome(None)
-                if self.fitness_function == 'rastrigin':
-                    chromosome.set_genes(np.random.uniform(low=-5.12, high=5.12, size=self.dimensions).tolist())
-                else:
-                    chromosome.set_genes(np.random.uniform(low=-100, high=100, size=self.dimensions).tolist())
+                chromosome.set_genes(np.random.uniform(low=(-1)*(self.max), high=self.max, size=self.dimensions).tolist())
                 population.append(chromosome)
 
         self.population = population.copy()
@@ -88,6 +93,10 @@ class GeneticAlgorithm:
                 chromosome.set_fitness_score(sphere_function(chromosome.get_genes()))
             elif self.fitness_function == "rosenbrock":
                 chromosome.set_fitness_score(rosenbrock_function(chromosome.get_genes(), self.dimensions))
+            elif self.fitness_function == "booth":
+                chromosome.set_fitness_score(booth_function(chromosome.get_genes()))
+            elif self.fitness_function == "himelblaus":
+                chromosome.set_fitness_score(himelblaus_function(chromosome.get_genes()))
 
         # Sort population based on fitness score
         self.population.sort(key=lambda x: x.fitness_score) 
@@ -203,7 +212,8 @@ class GeneticAlgorithm:
 
         self.population_initialization()
 
-        for i in tqdm(range(self.generations)):
+        # for i in tqdm(range(self.generations)):
+        for i in range(self.generations):
             # Evaluate Fitness and Order Chromosomes
             self.fitness_score()
 
@@ -266,6 +276,8 @@ class GeneticAlgorithm:
 ### Helper Functions
 
 ## Test Fitness Functions
+
+### ------ Multi Dimensional -----------
 # Rastrigin Function
 def rastrigin_function(genes :[], dimensions :int) -> float:
     A = 10
@@ -275,10 +287,24 @@ def rastrigin_function(genes :[], dimensions :int) -> float:
 def sphere_function(genes :[]) -> float:
     score = sum([x**2 for x in genes])
     return score
+
+### ----- > 2 Dimensional ------------
 # Rosenbrock Function
 def rosenbrock_function(genes :[], dimensions :int) -> float:
-    score = sum([(100 * ((genes[i+1] - (genes[i]**2))**2) + (1 - genes[i])**2) for i in range(dimensions-2)])
+    score = sum([(100 * ((genes[i+1] - (genes[i]**2))**2) + (1 - genes[i])**2) for i in range(len(genes)-2)])
     return score
+
+### ------ 2 Dimensional -------------
+# Booth Function -10 to 10
+def booth_function(genes :[]) -> float:
+    score = (genes[0] + 2*genes[1] + 7)**2 + (2 * genes[0] + genes[1] - 5)**2
+    return score
+
+# Himelblau's Function -5 to 5
+def himelblaus_function(genes :[]) -> float:
+    score = (genes[0]**2 + genes[1] + 11)**2 + (genes[0] + genes[1]**2 - 7)**2
+    return score
+
 
 # Roulette Wheel Selection
 # Gives higher priority to lower fitness score
