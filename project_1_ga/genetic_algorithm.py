@@ -17,6 +17,8 @@ class GeneticAlgorithm:
     stats_min = []
     stats_max = []
     stats_avg = []
+
+    completed_generations = 0
     
     mu = 0
 
@@ -212,22 +214,55 @@ class GeneticAlgorithm:
 
         self.population_initialization()
 
-        # for i in tqdm(range(self.generations)):
-        for i in range(self.generations):
-            # Evaluate Fitness and Order Chromosomes
-            self.fitness_score()
+        if self.termination_type == 'generations':
+            # for i in tqdm(range(self.generations)):
+            for i in range(self.generations):
+                # Evaluate Fitness and Order Chromosomes
+                self.fitness_score()
 
-            self.best_chromo.append(copy.deepcopy(self.population[0]))
+                self.best_chromo.append(copy.deepcopy(self.population[0]))
 
-            scores = [x.fitness_score for x in self.population]
+                scores = [x.fitness_score for x in self.population]
 
-            self.stats_min[i] = np.min(scores)
-            self.stats_max[i] = np.amax(scores)
-            self.stats_avg[i] = np.mean(scores)
+                self.stats_min[i] = np.min(scores)
+                self.stats_max[i] = np.amax(scores)
+                self.stats_avg[i] = np.mean(scores)
 
-            self.next_generation_selection()
-            self.crossover()
-            self.mutation()
+                self.next_generation_selection()
+                self.crossover()
+                self.mutation()
+            self.completed_generations = self.generations
+        elif self.termination_type == 'convergence':
+            i = 0
+            min_convergence_generations = 5
+            convergence_threshold = 0.05
+            while (True):
+                # Evaluate Fitness and Order Chromosomes
+                self.fitness_score()
+
+                self.best_chromo.append(copy.deepcopy(self.population[0]))
+
+                scores = [x.fitness_score for x in self.population]
+
+                self.stats_min[i] = np.min(scores)
+                self.stats_max[i] = np.amax(scores)
+                self.stats_avg[i] = np.mean(scores)
+
+                # Check if convergence is met
+                if i > min_convergence_generations:
+                    best_fitness_std = np.std(self.stats_min[-min_convergence_generations:])
+
+                    if best_fitness_std < convergence_threshold:
+                        break
+
+                self.next_generation_selection()
+                self.crossover()
+                self.mutation()
+
+                i += 1
+            self.completed_generations = i + 1
+        else:
+            print("----- Incorrect Termination Type -----")
 
     
     def plot_results(self) -> None:
@@ -269,6 +304,9 @@ class GeneticAlgorithm:
 
 
         # Values Plot
+
+    def get_completed_generations(self) -> int:
+        return self.completed_generations
 
 
 

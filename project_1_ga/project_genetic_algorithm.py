@@ -24,7 +24,7 @@ def run_single_genetic_algorithm():
     fitness_function = "rosenbrock" # rastrigin, spherical, rosenbrock, booth, himelblaus
     crossover_type = "binary_mask" # two_point, binary_mask
     mutation_type = ""
-    termination_type = "" # generations, required_average
+    termination_type = "" # generations, convergence
     mutation_rate = 0.2
     eletism = True
     eletism_size = 2
@@ -60,7 +60,7 @@ def run_genetic_algorithms():
     fitness_functions = ["rastrigin", "spherical", "booth", "himelblaus"] #["rastrigin", "spherical", "rosenbrock"]
     crossover_types = ["two_point", "binary_mask"]
     mutation_types = [""]
-    termination_types = ["generations", "required_average"]
+    termination_types = ["generations", "convergence"]
     mutation_rate = 0.2
     eletism = True
     eletism_size = 2
@@ -84,6 +84,7 @@ def run_genetic_algorithms():
                              'std_fit_score': [],
                              'max_fit_score': [],
                              'min_fit_score': [],
+                             'avg_gens': [],
                              })
     
     print(type(ga_stats))
@@ -101,6 +102,8 @@ def run_genetic_algorithms():
         # print(operator)
 
         fitness_scores = []
+
+        completed_gens = []
 
         for i in tqdm(range(100)):
             ga = GeneticAlgorithm(generations=generations,
@@ -123,12 +126,15 @@ def run_genetic_algorithms():
             # ga.plot_results()
 
             fitness_scores.append(fitness_score)
+            completed_gens.append(ga.get_completed_generations())
 
 
         avg_fit_score = np.mean(fitness_scores)
         std_fit_score = np.std(fitness_scores)
         max_fit_score = max(fitness_scores)
         min_fit_score = min(fitness_scores)
+
+        avg_gens = np.mean(completed_gens)
 
         data = {'init_type': initialization_type,
                    'sel_type': selection_type,
@@ -140,6 +146,7 @@ def run_genetic_algorithms():
                    'std_fit_score': std_fit_score,
                    'max_fit_score': max_fit_score,
                    'min_fit_score': min_fit_score,
+                   'avg_gens': avg_gens, 
                    }
         
         
