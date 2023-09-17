@@ -16,16 +16,17 @@ def main():
     run_genetic_algorithms()
 
 def run_single_genetic_algorithm():
-    generations = 200
-    dimensions = 20
+    generations = 100
+    dimensions = 2
     population_size = 100
     initialization_type = "gaussian" # gaussian, uniform
     selection_type = "tournament" # rws, tournament
     fitness_function = "rosenbrock" # rastrigin, spherical, rosenbrock, booth, himelblaus
     crossover_type = "binary_mask" # two_point, binary_mask
-    mutation_type = ""
+    mutation_type = "gaussian" # gaussian, uniform, swap
     termination_type = "" # generations, convergence
-    mutation_rate = 0.2
+    mutation_rate_individual = 0.4
+    mutation_rate_genes = 0.4
     eletism = True
     eletism_size = 2
 
@@ -37,7 +38,8 @@ def run_single_genetic_algorithm():
                           fitness_function=fitness_function,
                           crossover_type=crossover_type,
                           mutation_type=mutation_type,
-                          mutation_rate=mutation_rate,
+                          mutation_rate_individual=mutation_rate_individual,
+                          mutation_rate_genes=mutation_rate_genes,
                           termination_type=termination_type,
                           eletism=eletism,
                           eletism_size = eletism_size,
@@ -49,9 +51,9 @@ def run_single_genetic_algorithm():
 
 
 def run_genetic_algorithms():
-    generations = 200
+    generations = 100
     dimensions = 2
-    population_size = 50
+    population_size = 100
     initialization_types = ["gaussian", "uniform"]
     selection_types = ["rws", "tournament"]
     # All Dimensions
@@ -59,9 +61,10 @@ def run_genetic_algorithms():
     # 2 Dimensions
     fitness_functions = ["rastrigin", "spherical", "booth", "himelblaus"] #["rastrigin", "spherical", "rosenbrock"]
     crossover_types = ["two_point", "binary_mask"]
-    mutation_types = [""]
+    mutation_types = ["gaussian", "uniform", "swap"]
     termination_types = ["generations", "convergence"]
-    mutation_rate = 0.2
+    mutation_rate_individual = 0.5
+    mutation_rate_genes = 0.3
     eletism = True
     eletism_size = 2
 
@@ -98,8 +101,9 @@ def run_genetic_algorithms():
         termination_type = operator[4]
         fitness_function = operator[5]
 
-        print(f"------ {i+1}/{len(operators)} ------\n")
-        # print(operator)
+        print(f"------ {i+1}/{len(operators)} ------")
+        print(operator)
+        print("-----------------------------------\n")
 
         fitness_scores = []
 
@@ -114,7 +118,8 @@ def run_genetic_algorithms():
                             fitness_function=fitness_function,
                             crossover_type=crossover_type,
                             mutation_type=mutation_type,
-                            mutation_rate=mutation_rate,
+                            mutation_rate_individual=mutation_rate_individual,
+                            mutation_rate_genes=mutation_rate_genes,
                             termination_type=termination_type,
                             eletism=eletism,
                             eletism_size = eletism_size

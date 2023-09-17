@@ -32,7 +32,8 @@ class GeneticAlgorithm:
                  crossover_type :str,
                  mutation_type :str,
                  termination_type :str,
-                 mutation_rate :float,
+                 mutation_rate_individual :float,
+                 mutation_rate_genes :float,
                  eletism :bool,
                  eletism_size :int,
                 ) -> None:
@@ -45,7 +46,8 @@ class GeneticAlgorithm:
         self.crossover_type = crossover_type
         self.mutation_type = mutation_type
         self.termination_type = termination_type # termination criteria
-        self.mutation_rate = mutation_rate
+        self.mutation_rate_individual = mutation_rate_individual
+        self.mutation_rate_genes = mutation_rate_genes
         self.eletism = eletism
         self.eletism_offset = eletism_size
 
@@ -194,12 +196,24 @@ class GeneticAlgorithm:
 
         for i in range(self.eletism_offset, self.population_size):
             chromosome = copy.deepcopy(self.population[i])
-            for j in range(self.dimensions):
-                random_val = random.random()
-                if random_val < self.mutation_rate/2:
-                    chromosome.genes[j] = chromosome.genes[j] - random.random()
-                elif random_val > self.mutation_rate/2:
-                    chromosome.genes[j] = chromosome.genes[j] + random.random()
+            # Check if individual should be mutated
+            if random.random() <= self.mutation_rate_individual:
+                for j in range(self.dimensions):
+                    # Check if gene should be mutated
+                    if random.random() <= self.mutation_rate_genes:
+                        # Gaussian
+                        if self.mutation_type == "gaussian":
+                            chromosome.genes[j] = chromosome.genes[j] + np.random.normal(loc=chromosome.genes[j], scale=1, size=1).tolist()[0]
+                        
+                        # Uniform
+                        if self.mutation_type == "uniform":
+                            chromosome.genes[j] = chromosome.genes[j] + np.random.uniform(low=chromosome.genes[j] - 2, high=chromosome.genes[j] + 2, size=1).tolist()[0]
+
+                        # Swap
+                        if self.mutation_type == "swap" and j < self.dimensions - 1:
+                            chromosome.genes[j], chromosome.genes[j+1] = chromosome.genes[j+1], chromosome.genes[j]
+                            
+
             population_nextgen.append(copy.deepcopy(chromosome))
         
         self.population = population_nextgen.copy()
