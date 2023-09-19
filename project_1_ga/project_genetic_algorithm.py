@@ -13,22 +13,24 @@ from tqdm import tqdm
 
 
 def main():
-    run_genetic_algorithms()
+    # run_genetic_algorithms()
+    run_single_genetic_algorithm()
 
 def run_single_genetic_algorithm():
-    generations = 100
+    generations = 50
     dimensions = 2
-    population_size = 100
-    initialization_type = "gaussian" # gaussian, uniform
-    selection_type = "tournament" # rws, tournament
-    fitness_function = "rosenbrock" # rastrigin, spherical, rosenbrock, booth, himelblaus
-    crossover_type = "binary_mask" # two_point, binary_mask
+    population_size = 20
+    initialization_type = "uniform" # gaussian, uniform
+    selection_type = "rws" # rws, tournament
+    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himelblaus
+    crossover_type = "centroid" # two_point, binary_mask, 2_parent_average, centroid
     mutation_type = "gaussian" # gaussian, uniform, swap
-    termination_type = "" # generations, convergence
+    termination_type = "generations" # generations, convergence
     mutation_rate_individual = 0.4
     mutation_rate_genes = 0.4
     eletism = True
     eletism_size = 2
+    plot = True
 
     ga = GeneticAlgorithm(generations=generations,
                           dimensions=dimensions,
@@ -43,11 +45,12 @@ def run_single_genetic_algorithm():
                           termination_type=termination_type,
                           eletism=eletism,
                           eletism_size = eletism_size,
+                          plot = plot,
     )
 
     ga.run_generations()
     ga.print_best_chromosome()
-    ga.plot_results()
+    ga.plot_stats()
 
 
 def run_genetic_algorithms():
@@ -67,6 +70,7 @@ def run_genetic_algorithms():
     mutation_rate_genes = 0.3
     eletism = True
     eletism_size = 2
+    plot = False
 
     # Use itertools.product to create all combinations
     operators = list(product(initialization_types,
@@ -122,7 +126,8 @@ def run_genetic_algorithms():
                             mutation_rate_genes=mutation_rate_genes,
                             termination_type=termination_type,
                             eletism=eletism,
-                            eletism_size = eletism_size
+                            eletism_size = eletism_size,
+                            plot = plot
             )
 
             ga.run_generations()

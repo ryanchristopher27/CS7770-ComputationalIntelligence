@@ -1,6 +1,7 @@
 # Genetic Algorithm Class
 
 # Imports
+import os
 import random
 import numpy as np
 import math
@@ -8,6 +9,10 @@ from chromosome import Chromosome
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import copy
+import pylab as pl
+from IPython import display
+import time
+
 
 class GeneticAlgorithm:
 
@@ -36,6 +41,7 @@ class GeneticAlgorithm:
                  mutation_rate_genes :float,
                  eletism :bool,
                  eletism_size :int,
+                 plot :bool = False,
                 ) -> None:
         self.generations = generations # number of generations
         self.dimensions = dimensions # number of features
@@ -50,6 +56,7 @@ class GeneticAlgorithm:
         self.mutation_rate_genes = mutation_rate_genes
         self.eletism = eletism
         self.eletism_offset = eletism_size
+        self.plot = plot
 
         if not eletism:
             self.eletism_offset = 0
@@ -179,6 +186,44 @@ class GeneticAlgorithm:
                 population_nextgen.append(child_1)
                 population_nextgen.append(child_2)
 
+        elif self.crossover_type == '2_parent_average':
+
+            for i in range(0, required_children):
+                p1_index = random.randint(0, len(self.population)-1)
+                p2_index = random.randint(0, len(self.population)-1)
+
+                child = Chromosome(self.population[p1_index].get_fitness_score())
+                
+                avg_genes = []
+                for j in range(self.dimensions):
+                    avg_genes.append(np.mean([self.population[p1_index].get_genes()[j], self.population[p2_index].get_genes()[j]]))
+
+                child.set_genes(avg_genes)
+
+                population_nextgen.append(child)
+
+        # Only 2 Dimensional
+        elif self.crossover_type == 'centroid':
+
+            for i in range(0, required_children):
+                p1_index = random.randint(0, len(self.population)-1)
+                p2_index = random.randint(0, len(self.population)-1)
+                p3_index = random.randint(0, len(self.population)-1)
+
+                centroid_x = (self.population[p1_index].get_genes()[0] +
+                              self.population[p2_index].get_genes()[0] +
+                              self.population[p3_index].get_genes()[0]) / 3
+                
+                centroid_y = (self.population[p1_index].get_genes()[1] +
+                              self.population[p2_index].get_genes()[1] +
+                              self.population[p3_index].get_genes()[1]) / 3
+                
+                child = Chromosome(self.population[p1_index].get_fitness_score())
+
+                child.set_genes([centroid_x, centroid_y])
+
+                population_nextgen.append(child)
+
         self.population += population_nextgen
 
         # self.population = population_nextgen.copy()
@@ -227,6 +272,9 @@ class GeneticAlgorithm:
         self.stats_avg = np.zeros(self.generations)
 
         self.population_initialization()
+        
+        if self.plot:
+            fig, ax = self.create_countour_2d_plot()
 
         if self.termination_type == 'generations':
             # for i in tqdm(range(self.generations)):
@@ -245,6 +293,9 @@ class GeneticAlgorithm:
                 self.next_generation_selection()
                 self.crossover()
                 self.mutation()
+
+                if self.plot:
+                    self.countour_2d_plot(fig, ax, i+1, (i == 0 or i == self.generations-1))
             self.completed_generations = self.generations
         elif self.termination_type == 'convergence':
             i = 0
@@ -273,20 +324,88 @@ class GeneticAlgorithm:
                 self.crossover()
                 self.mutation()
 
+                if self.plot:
+                    self.countour_2d_plot(fig, ax, i+1)
+
                 i += 1
             self.completed_generations = i + 1
         else:
             print("----- Incorrect Termination Type -----")
 
+        if self.plot:
+            self.close_contour_2d_plot()
+
+    def create_countour_2d_plot(self) -> ():
+        # fig, ax = pl.subplots(nrows = 1, ncols = 1, figsize=(9, 9))
+        # return fig, ax
+        plt.ion()  # Enable interactive mode
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(9, 9))
+        return fig, ax
+
     
-    def plot_results(self) -> None:
+    def countour_2d_plot(self, fig, ax, generation, save=False) -> None:
+        Bounds = 5
+        ContourStepSize = 0.05
+
+        a = np.arange(-Bounds-1, Bounds+1, ContourStepSize)
+        b = np.arange(-Bounds-1, Bounds+1, ContourStepSize)
+        x, y = np.meshgrid(a, b)
+        z = self.fitness_functions(x, y)
+
+        ax.clear()  # Clear the previous plot
+        ax.scatter([x.genes[0] for x in self.population], [y.genes[1] for y in self.population], edgecolor='r', alpha=0.8)
+        ax.contour(x, y, z, levels=np.logspace(-9, 9, 150), cmap='jet', alpha=0.4)
+
+        # Set limits
+        ax.set_xlim(-Bounds-1, Bounds+1)
+        ax.set_ylim(-Bounds-1, Bounds+1)
+
+        # Set the title with the iteration value
+        ax.set_title(f'Generation {generation}')
+        
+        # Draw the updated figure
+        fig.canvas.draw()
+
+        # Save the first and last figures
+        if save == True:
+            if generation == 1:
+                self.save_contour_figure(fig, generation, "start")
+            else:
+                self.save_contour_figure(fig, generation, "end")
+        
+        # Pause for animation
+        plt.pause(0.1) 
+
+    def close_contour_2d_plot(self) -> None:
+        plt.ioff()  # Disable interactive mode
+        plt.show()  # Display the final plot
+
+    def save_contour_figure(self, fig, iteration, name) -> None:
+        output_folder = 'results/countours'
+        filename = os.path.join(output_folder, f"{self.fitness_function}_{name}_{iteration}.png")
+        fig.savefig(filename)
+
+    def plot_stats(self) -> None:
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(9, 9))
         # plot the statistics
+        # Average Plot
         plt.plot(self.stats_min,'r')
         plt.plot(self.stats_avg,'b')
         plt.plot(self.stats_max,'g')
         plt.ylabel('accuracy')
         plt.xlabel('generations')
         plt.show()
+
+        self.save_stat_figure(fig, 'avg_accuracy')
+
+        # Standard Deviation Plot
+
+        # Save Plots
+
+    def save_stat_figure(self, fig, name) -> None:
+        output_folder = 'results/stat_plots'
+        filename = os.path.join(output_folder, f"{self.fitness_function}_{name}")
+        fig.savefig(filename)
 
     def print_best_chromosome(self) -> None:
         print("-- FIRST GEN --")
@@ -305,24 +424,22 @@ class GeneticAlgorithm:
 
         return avg, std, fitness_score
     
-    def get_plot(self) -> ():
-        # Average Plot
-        plt.plot(self.stats_min,'r')
-        plt.plot(self.stats_avg,'b')
-        plt.plot(self.stats_max,'g')
-        plt.ylabel('accuracy')
-        plt.xlabel('generations')
-        avg_plot = plt
-
-        # Standard Deviation Plot
-
-
-        # Values Plot
 
     def get_completed_generations(self) -> int:
         return self.completed_generations
 
+    # All Fitness Functions
+    def fitness_functions(self, x, y):
+        if(self.fitness_function == 'rastrigin'):
+            z = 10*2 + (x**2 - 10*np.cos(2*math.pi*x)) + (y**2 - 10*np.cos(2*math.pi*y)) # Rastrigin function
+        elif(self.fitness_function == 'spherical'):    
+            z = x**2 + y**2
+        elif(self.fitness_function == 'booth'):
+            z = (x + (2*y) - 7)**2 + ((2*x) + y - 5)**2
+        elif(self.fitness_function == 'himelblaus'):
+            z = ((x**2) + y - 11)**2 + (x + (y**2) - 7)**2 # Himmelblau's function
 
+        return z
 
 # ----------------------------------------------------------------------------------
 ### Helper Functions
@@ -349,13 +466,15 @@ def rosenbrock_function(genes :[], dimensions :int) -> float:
 ### ------ 2 Dimensional -------------
 # Booth Function -10 to 10
 def booth_function(genes :[]) -> float:
-    score = (genes[0] + 2*genes[1] + 7)**2 + (2 * genes[0] + genes[1] - 5)**2
+    score = (genes[0] + (2*genes[1]) - 7)**2 + ((2*genes[0]) + genes[1] - 5)**2
     return score
 
 # Himelblau's Function -5 to 5
 def himelblaus_function(genes :[]) -> float:
-    score = (genes[0]**2 + genes[1] + 11)**2 + (genes[0] + genes[1]**2 - 7)**2
+    score = (genes[0]**2 + genes[1] - 11)**2 + (genes[0] + (genes[1]**2) - 7)**2
     return score
+
+
 
 
 # Roulette Wheel Selection
