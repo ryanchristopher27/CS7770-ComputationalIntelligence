@@ -13,16 +13,16 @@ from tqdm import tqdm
 
 
 def main():
-    # run_genetic_algorithms()
+    run_genetic_algorithms(dimensions = 2)
     run_single_genetic_algorithm()
 
-def run_single_genetic_algorithm():
+def run_single_genetic_algorithm() -> None:
     generations = 50
     dimensions = 2
     population_size = 20
     initialization_type = "uniform" # gaussian, uniform
     selection_type = "rws" # rws, tournament
-    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himelblaus
+    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
     crossover_type = "centroid" # two_point, binary_mask, 2_parent_average, centroid
     mutation_type = "gaussian" # gaussian, uniform, swap
     termination_type = "generations" # generations, convergence
@@ -53,17 +53,19 @@ def run_single_genetic_algorithm():
     ga.plot_stats()
 
 
-def run_genetic_algorithms():
-    generations = 100
+def run_genetic_algorithms(dimensions :int) -> None:
+    generations = 30
     dimensions = 2
-    population_size = 100
+    population_size = 20
     initialization_types = ["gaussian", "uniform"]
     selection_types = ["rws", "tournament"]
-    # All Dimensions
-    # fitness_functions = ["rastrigin", "spherical"] #["rastrigin", "spherical", "rosenbrock"]
-    # 2 Dimensions
-    fitness_functions = ["rastrigin", "spherical", "booth", "himelblaus"] #["rastrigin", "spherical", "rosenbrock"]
-    crossover_types = ["two_point", "binary_mask"]
+    if dimensions == 2:
+        # 2 Dimensions
+        fitness_functions = ["rastrigin", "spherical", "booth", "himmelblau"] #["rastrigin", "spherical", "rosenbrock"]
+    else:
+        # All Dimensio
+        fitness_functions = ["rastrigin", "spherical"] #["rastrigin", "spherical", "rosenbrock"]
+    crossover_types = ["two_point", "binary_mask", "2_parent_average", "centroid"]
     mutation_types = ["gaussian", "uniform", "swap"]
     termination_types = ["generations", "convergence"]
     mutation_rate_individual = 0.5

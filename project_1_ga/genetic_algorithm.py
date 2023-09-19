@@ -63,7 +63,7 @@ class GeneticAlgorithm:
         # else:
             # self.eletism_offset = 2
 
-        if fitness_function == 'rastrigin' or fitness_function == 'himelblaus':
+        if fitness_function == 'rastrigin' or fitness_function == 'himmelblau':
             self.sigma = 1.7
             self.max = 5
         elif fitness_function == 'spherical' or fitness_function == 'rosenbrock' or fitness_function == 'booth':
@@ -106,8 +106,8 @@ class GeneticAlgorithm:
                 chromosome.set_fitness_score(rosenbrock_function(chromosome.get_genes(), self.dimensions))
             elif self.fitness_function == "booth":
                 chromosome.set_fitness_score(booth_function(chromosome.get_genes()))
-            elif self.fitness_function == "himelblaus":
-                chromosome.set_fitness_score(himelblaus_function(chromosome.get_genes()))
+            elif self.fitness_function == "himmelblau":
+                chromosome.set_fitness_score(himmelblau_function(chromosome.get_genes()))
 
         # Sort population based on fitness score
         self.population.sort(key=lambda x: x.fitness_score) 
@@ -436,7 +436,7 @@ class GeneticAlgorithm:
             z = x**2 + y**2
         elif(self.fitness_function == 'booth'):
             z = (x + (2*y) - 7)**2 + ((2*x) + y - 5)**2
-        elif(self.fitness_function == 'himelblaus'):
+        elif(self.fitness_function == 'himmelblau'):
             z = ((x**2) + y - 11)**2 + (x + (y**2) - 7)**2 # Himmelblau's function
 
         return z
@@ -470,7 +470,7 @@ def booth_function(genes :[]) -> float:
     return score
 
 # Himelblau's Function -5 to 5
-def himelblaus_function(genes :[]) -> float:
+def himmelblau_function(genes :[]) -> float:
     score = (genes[0]**2 + genes[1] - 11)**2 + (genes[0] + (genes[1]**2) - 7)**2
     return score
 
