@@ -299,8 +299,9 @@ class GeneticAlgorithm:
             self.completed_generations = self.generations
         elif self.termination_type == 'convergence':
             i = 0
-            min_convergence_generations = 5
-            convergence_threshold = 0.05
+            min_convergence_generations = 15
+            # convergence_threshold = 0.05
+            avg_convergence_threshold = self.dimensions * 0.3
             while (True):
                 # Evaluate Fitness and Order Chromosomes
                 self.fitness_score()
@@ -315,9 +316,11 @@ class GeneticAlgorithm:
 
                 # Check if convergence is met
                 if i > min_convergence_generations:
-                    best_fitness_std = np.std(self.stats_min[-min_convergence_generations:])
+                    # best_fitness_std = np.std(self.stats_avg[-min_convergence_generations:])
+                    avg_fitness_avg = np.mean(self.stats_avg[-min_convergence_generations:])
 
-                    if best_fitness_std < convergence_threshold:
+                    # if best_fitness_std < convergence_threshold:
+                    if avg_fitness_avg < avg_convergence_threshold:
                         break
 
                 self.next_generation_selection()

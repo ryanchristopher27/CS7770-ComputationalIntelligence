@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 
 def main():
-    run_genetic_algorithms(dimensions = 2)
+    # run_genetic_algorithms(dimensions = 2)
     run_single_genetic_algorithm()
 
 def run_single_genetic_algorithm() -> None:
@@ -25,7 +25,7 @@ def run_single_genetic_algorithm() -> None:
     fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
     crossover_type = "centroid" # two_point, binary_mask, 2_parent_average, centroid
     mutation_type = "gaussian" # gaussian, uniform, swap
-    termination_type = "generations" # generations, convergence
+    termination_type = "convergence" # generations, convergence
     mutation_rate_individual = 0.4
     mutation_rate_genes = 0.4
     eletism = True
