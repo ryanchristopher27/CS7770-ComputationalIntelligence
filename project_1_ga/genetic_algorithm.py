@@ -163,8 +163,8 @@ class GeneticAlgorithm:
                     second_cross_point = swaper
 
                 # Swap
-                child_1.genes[first_cross_point:second_cross_point] = self.population[i].genes[first_cross_point:second_cross_point]
-                child_2.genes[first_cross_point:second_cross_point] = self.population[i+1].genes[first_cross_point:second_cross_point]
+                child_1.genes[first_cross_point:second_cross_point] = self.population[i+1].genes[first_cross_point:second_cross_point]
+                child_2.genes[first_cross_point:second_cross_point] = self.population[i].genes[first_cross_point:second_cross_point]
 
                 population_nextgen.append(child_1)
                 population_nextgen.append(child_2)
