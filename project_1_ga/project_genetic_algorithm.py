@@ -13,8 +13,8 @@ from tqdm import tqdm
 
 
 def main():
-    # run_genetic_algorithms(dimensions = 2)
-    run_single_genetic_algorithm()
+    run_genetic_algorithms(dimensions = 2)
+    # run_single_genetic_algorithm()
 
 def run_single_genetic_algorithm() -> None:
     generations = 50

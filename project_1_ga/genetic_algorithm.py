@@ -150,8 +150,8 @@ class GeneticAlgorithm:
                 child_1 = copy.deepcopy(self.population[i])
                 child_2 = copy.deepcopy(self.population[i+1])
 
-                first_cross_point = random.randint(0,self.dimensions)
-                second_cross_point = random.randint(0,self.dimensions)
+                first_cross_point = random.randint(0,self.dimensions-1)
+                second_cross_point = random.randint(0,self.dimensions-1)
                 # did we get the same point? have to deal with that
                 if( first_cross_point == second_cross_point ):
                     first_cross_point = 0
@@ -248,15 +248,18 @@ class GeneticAlgorithm:
                     if random.random() <= self.mutation_rate_genes:
                         # Gaussian
                         if self.mutation_type == "gaussian":
-                            chromosome.genes[j] = chromosome.genes[j] + np.random.normal(loc=chromosome.genes[j], scale=1, size=1).tolist()[0]
+                            chromosome.genes[j] = chromosome.genes[j] + np.random.normal(loc=0, scale=1, size=1).tolist()[0]
                         
                         # Uniform
                         if self.mutation_type == "uniform":
-                            chromosome.genes[j] = chromosome.genes[j] + np.random.uniform(low=chromosome.genes[j] - 2, high=chromosome.genes[j] + 2, size=1).tolist()[0]
+                            chromosome.genes[j] = chromosome.genes[j] + np.random.uniform(low=-2, high=2, size=1).tolist()[0]
 
                         # Swap
-                        if self.mutation_type == "swap" and j < self.dimensions - 1:
-                            chromosome.genes[j], chromosome.genes[j+1] = chromosome.genes[j+1], chromosome.genes[j]
+                        if self.mutation_type == "swap":
+                            if j < self.dimensions - 1:
+                                chromosome.genes[j], chromosome.genes[j+1] = chromosome.genes[j+1], chromosome.genes[j]
+                            else:
+                                chromosome.genes[j], chromosome.genes[0] = chromosome.genes[0], chromosome.genes[j]
                             
 
             population_nextgen.append(copy.deepcopy(chromosome))
@@ -267,9 +270,12 @@ class GeneticAlgorithm:
     # Generations
     def run_generations(self) -> None:
         self.best_chromo = []
-        self.stats_min = np.zeros(self.generations)
-        self.stats_max = np.zeros(self.generations)
-        self.stats_avg = np.zeros(self.generations)
+        # self.stats_min = np.zeros(self.generations)
+        # self.stats_max = np.zeros(self.generations)
+        # self.stats_avg = np.zeros(self.generations)
+        self.stats_min = []
+        self.stats_max = []
+        self.stats_avg = []
 
         self.population_initialization()
         
@@ -286,9 +292,12 @@ class GeneticAlgorithm:
 
                 scores = [x.fitness_score for x in self.population]
 
-                self.stats_min[i] = np.min(scores)
-                self.stats_max[i] = np.amax(scores)
-                self.stats_avg[i] = np.mean(scores)
+                # self.stats_min[i] = np.min(scores)
+                # self.stats_max[i] = np.amax(scores)
+                # self.stats_avg[i] = np.mean(scores)
+                self.stats_min.append(np.min(scores))
+                self.stats_max.append(np.amax(scores))
+                self.stats_avg.append(np.mean(scores))
 
                 self.next_generation_selection()
                 self.crossover()
@@ -310,18 +319,24 @@ class GeneticAlgorithm:
 
                 scores = [x.fitness_score for x in self.population]
 
-                self.stats_min[i] = np.min(scores)
-                self.stats_max[i] = np.amax(scores)
-                self.stats_avg[i] = np.mean(scores)
+                # self.stats_min[i] = np.min(scores)
+                # self.stats_max[i] = np.amax(scores)
+                # self.stats_avg[i] = np.mean(scores)
+                self.stats_min.append(np.min(scores))
+                self.stats_max.append(np.amax(scores))
+                self.stats_avg.append(np.mean(scores))
 
                 # Check if convergence is met
                 if i > min_convergence_generations:
                     # best_fitness_std = np.std(self.stats_avg[-min_convergence_generations:])
-                    avg_fitness_avg = np.mean(self.stats_avg[-min_convergence_generations:])
+                    avg_fitness_avg = np.mean(self.stats_min[-min_convergence_generations:])
 
                     # if best_fitness_std < convergence_threshold:
                     if avg_fitness_avg < avg_convergence_threshold:
                         break
+
+                if i > 500:
+                    break
 
                 self.next_generation_selection()
                 self.crossover()
