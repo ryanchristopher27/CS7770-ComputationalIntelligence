@@ -1,19 +1,24 @@
 Run 1
     First Generation Score: 17756.535605035635
     Final Generation Score: 11095.828092656775
+    Percent Imrpovement: 37.51%
 
 Run 2
     First Generation Score: 17664.896469537583
     Final Generation Score: 10878.940910940433
+    Percent Imrpovement: 38.41%
 
 Run 3
     First Generation Score: 17587.001147761184
     Final Generation Score: 11541.927735366648
+    Percent Imrpovement: 34.37%
 
 Run 4
     First Generation Score: 17787.516937550376
     Final Generation Score: 11193.407149386645
+    Percent Imrpovement: 37.07%
 
 Run 5
     First Generation Score: 17499.06197207948
     Final Generation Score: 11201.140470538452
+    Percent Imrpovement: 35.99%s
