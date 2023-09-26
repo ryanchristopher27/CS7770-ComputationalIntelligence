@@ -41,6 +41,7 @@ class GeneticAlgorithm:
                  mutation_rate_genes :float,
                  elitism :bool,
                  elitism_size :int,
+                 selection_size :int,
                  plot :bool = False,
                 ) -> None:
         self.generations = generations # number of generations
@@ -56,7 +57,10 @@ class GeneticAlgorithm:
         self.mutation_rate_genes = mutation_rate_genes
         self.elitism = elitism
         self.elitism_offset = elitism_size
+        self.selection_size = selection_size
         self.plot = plot
+
+        self.crossover_size = self.population_size - (self.selection_size + self.elitism)
 
         if not elitism:
             self.elitism_offset = 0
@@ -123,10 +127,12 @@ class GeneticAlgorithm:
 
         if self.selection_type == "rws":
             # Implement RWS
-            selections = roulette_wheel_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2))
+            # selections = roulette_wheel_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2))
+            selections = roulette_wheel_selection(self.population[self.elitism_offset:], self.selection_size)
         elif self.selection_type == "tournament":
             # Implement Tournament Selection
-            selections = tournament_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2), self.population_size - self.elitism_offset)
+            # selections = tournament_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2), self.population_size - self.elitism_offset)
+            selections = tournament_selection(self.population[self.elitism_offset:], self.selection_size, self.population_size - self.elitism_offset)
         
         population_nextgen += selections
 
@@ -411,7 +417,7 @@ class GeneticAlgorithm:
 
     def save_contour_figure(self, fig, iteration, name) -> None:
         output_folder = 'results/countours'
-        filename = os.path.join(output_folder, f"{self.dimensions}_dimensions_{name}_{iteration}.png")
+        filename = os.path.join(output_folder, f"{self.mutation_rate_individual}_{self.mutation_rate_genes}_{self.crossover_size}_{name}_{iteration}.png")
         fig.savefig(filename)
 
     def plot_stats(self) -> None:
@@ -433,7 +439,7 @@ class GeneticAlgorithm:
 
     def save_stat_figure(self, fig, name) -> None:
         output_folder = 'results/stat_plots'
-        filename = os.path.join(output_folder, f"{self.dimensions}_dimensions_{name}")
+        filename = os.path.join(output_folder, f"{self.mutation_rate_individual}_{self.mutation_rate_genes}_{self.crossover_size}_{name}")
         fig.savefig(filename)
 
     def print_best_chromosome(self) -> None:
