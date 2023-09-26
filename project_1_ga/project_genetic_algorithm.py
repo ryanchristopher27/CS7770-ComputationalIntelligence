@@ -14,22 +14,23 @@ from tqdm import tqdm
 
 def main():
     # run_genetic_algorithms(dimensions = 2)
-    run_single_genetic_algorithm()
+    # run_single_genetic_algorithm()
+    run_dimensionality_experiment()
 
 def run_single_genetic_algorithm() -> None:
     generations = 50
     dimensions = 2
     population_size = 20
     initialization_type = "uniform" # gaussian, uniform
-    selection_type = "rws" # rws, tournament
-    fitness_function = "himmelblau" # rastrigin, spherical, rosenbrock, booth, himmelblau
-    crossover_type = "centroid" # two_point, binary_mask, 2_parent_average, centroid
+    selection_type = "tournament" # rws, tournament
+    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
+    crossover_type = "2_parent_average" # two_point, binary_mask, 2_parent_average, centroid
     mutation_type = "gaussian" # gaussian, uniform, swap
     termination_type = "generations" # generations, convergence
-    mutation_rate_individual = 0.4
-    mutation_rate_genes = 0.4
-    eletism = True
-    eletism_size = 2
+    mutation_rate_individual = 0.5
+    mutation_rate_genes = 0.3
+    elitism = True
+    elitism_size = 2
     plot = True
 
     ga = GeneticAlgorithm(generations=generations,
@@ -43,8 +44,8 @@ def run_single_genetic_algorithm() -> None:
                           mutation_rate_individual=mutation_rate_individual,
                           mutation_rate_genes=mutation_rate_genes,
                           termination_type=termination_type,
-                          eletism=eletism,
-                          eletism_size = eletism_size,
+                          elitism=elitism,
+                          elitism_size = elitism_size,
                           plot = plot,
     )
 
@@ -70,8 +71,8 @@ def run_genetic_algorithms(dimensions :int) -> None:
     termination_types = ["generations", "convergence"]
     mutation_rate_individual = 0.5
     mutation_rate_genes = 0.3
-    eletism = True
-    eletism_size = 2
+    elitism = True
+    elitism_size = 2
     plot = False
 
     # Use itertools.product to create all combinations
@@ -127,8 +128,8 @@ def run_genetic_algorithms(dimensions :int) -> None:
                             mutation_rate_individual=mutation_rate_individual,
                             mutation_rate_genes=mutation_rate_genes,
                             termination_type=termination_type,
-                            eletism=eletism,
-                            eletism_size = eletism_size,
+                            elitism=elitism,
+                            elitism_size = elitism_size,
                             plot = plot
             )
 
@@ -176,6 +177,42 @@ def run_genetic_algorithms(dimensions :int) -> None:
 
     ga_stats.to_csv('results/ga_stats.csv', index=False)  # Set index=False to exclude row numbers in the output
 
+
+def run_dimensionality_experiment() -> None:
+    generations = 50
+    dimensions = 10000
+    population_size = 20
+    initialization_type = "uniform" # gaussian, uniform
+    selection_type = "tournament" # rws, tournament
+    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
+    crossover_type = "2_parent_average" # two_point, binary_mask, 2_parent_average, centroid
+    mutation_type = "gaussian" # gaussian, uniform, swap
+    termination_type = "generations" # generations, convergence
+    mutation_rate_individual = 0.5
+    mutation_rate_genes = 0.3
+    elitism = True
+    elitism_size = 2
+    plot = False
+
+    ga = GeneticAlgorithm(generations=generations,
+                          dimensions=dimensions,
+                          population_size=population_size,
+                          initialization_type=initialization_type,
+                          selection_type=selection_type,
+                          fitness_function=fitness_function,
+                          crossover_type=crossover_type,
+                          mutation_type=mutation_type,
+                          mutation_rate_individual=mutation_rate_individual,
+                          mutation_rate_genes=mutation_rate_genes,
+                          termination_type=termination_type,
+                          elitism=elitism,
+                          elitism_size = elitism_size,
+                          plot = plot,
+    )
+
+    ga.run_generations()
+    ga.print_best_chromosome()
+    ga.plot_stats()
 
 if __name__=="__main__":
     main()

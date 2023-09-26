@@ -1,0 +1,19 @@
+Run 1
+    First Generation Score: 12.286542025748705
+    Final Generation Score: 0.017614497253408246
+
+Run 2
+    First Generation Score: 14.780626630373614
+    Final Generation Score: 0.11838808508802146
+
+Run 3
+    First Generation Score: 13.160245782562104
+    Final Generation Score: 1.4287176464824434
+
+Run 4
+    First Generation Score: 6.032169270372222
+    Final Generation Score: 0.8391817969433504
+
+Run 5
+    First Generation Score: 14.833172628598554
+    Final Generation Score: 0.6983815329525207

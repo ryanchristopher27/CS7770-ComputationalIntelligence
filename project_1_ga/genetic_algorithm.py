@@ -39,8 +39,8 @@ class GeneticAlgorithm:
                  termination_type :str,
                  mutation_rate_individual :float,
                  mutation_rate_genes :float,
-                 eletism :bool,
-                 eletism_size :int,
+                 elitism :bool,
+                 elitism_size :int,
                  plot :bool = False,
                 ) -> None:
         self.generations = generations # number of generations
@@ -54,14 +54,14 @@ class GeneticAlgorithm:
         self.termination_type = termination_type # termination criteria
         self.mutation_rate_individual = mutation_rate_individual
         self.mutation_rate_genes = mutation_rate_genes
-        self.eletism = eletism
-        self.eletism_offset = eletism_size
+        self.elitism = elitism
+        self.elitism_offset = elitism_size
         self.plot = plot
 
-        if not eletism:
-            self.eletism_offset = 0
+        if not elitism:
+            self.elitism_offset = 0
         # else:
-            # self.eletism_offset = 2
+            # self.elitism_offset = 2
 
         if fitness_function == 'rastrigin' or fitness_function == 'himmelblau':
             self.sigma = 1.7
@@ -115,18 +115,18 @@ class GeneticAlgorithm:
     # generation selection
     def next_generation_selection(self) -> None:
         population_nextgen = []
-        # Include eletism
-        if self.eletism:
-            for i in range(self.eletism_offset):
+        # Include elitism
+        if self.elitism:
+            for i in range(self.elitism_offset):
                 population_nextgen.append(copy.deepcopy(self.population[i]))
             # population_nextgen.append(copy.deepcopy(self.population[1]))
 
         if self.selection_type == "rws":
             # Implement RWS
-            selections = roulette_wheel_selection(self.population[self.eletism_offset:], int((self.population_size - self.eletism_offset)/2))
+            selections = roulette_wheel_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2))
         elif self.selection_type == "tournament":
             # Implement Tournament Selection
-            selections = tournament_selection(self.population[self.eletism_offset:], int((self.population_size - self.eletism_offset)/2), self.population_size - self.eletism_offset)
+            selections = tournament_selection(self.population[self.elitism_offset:], int((self.population_size - self.elitism_offset)/2), self.population_size - self.elitism_offset)
         
         population_nextgen += selections
 
@@ -139,13 +139,13 @@ class GeneticAlgorithm:
 
         required_children = self.population_size - len(self.population)
 
-        # if self.eletism:
+        # if self.elitism:
         #     population_nextgen.append(copy.deepcopy(self.population[0]))
         #     population_nextgen.append(copy.deepcopy(self.population[1]))
 
         if self.crossover_type == 'two_point':
             # Two Point Crossover
-            # for i in range(self.eletism_offset, self.population_size, 2):
+            # for i in range(self.elitism_offset, self.population_size, 2):
             for i in range(0, required_children, 2):
                 child_1 = copy.deepcopy(self.population[i])
                 child_2 = copy.deepcopy(self.population[i+1])
@@ -242,12 +242,12 @@ class GeneticAlgorithm:
         population_nextgen = []
         
         # Elitism
-        for j in range(self.eletism_offset):
+        for j in range(self.elitism_offset):
             population_nextgen.append(copy.deepcopy(self.population[j]))
         # population_nextgen.append(copy.deepcopy(self.population[0]))
         # population_nextgen.append(copy.deepcopy(self.population[1]))
 
-        for i in range(self.eletism_offset, self.population_size):
+        for i in range(self.elitism_offset, self.population_size):
             chromosome = copy.deepcopy(self.population[i])
             # Check if individual should be mutated
             if random.random() <= self.mutation_rate_individual:
@@ -270,7 +270,7 @@ class GeneticAlgorithm:
                                 chromosome.genes[j], chromosome.genes[0] = chromosome.genes[0], chromosome.genes[j]
                             
                         if self.mutation_type == "eletist": 
-                            eletist_index = random.randint(0, self.eletism_offset-1)
+                            eletist_index = random.randint(0, self.elitism_offset-1)
                             chromosome.genes[j] = np.mean([chromosome.genes[j], self.population[eletist_index].get_genes()[j]])
 
             population_nextgen.append(copy.deepcopy(chromosome))
@@ -411,7 +411,7 @@ class GeneticAlgorithm:
 
     def save_contour_figure(self, fig, iteration, name) -> None:
         output_folder = 'results/countours'
-        filename = os.path.join(output_folder, f"{self.fitness_function}_{name}_{iteration}.png")
+        filename = os.path.join(output_folder, f"{self.dimensions}_dimensions_{name}_{iteration}.png")
         fig.savefig(filename)
 
     def plot_stats(self) -> None:
@@ -433,15 +433,15 @@ class GeneticAlgorithm:
 
     def save_stat_figure(self, fig, name) -> None:
         output_folder = 'results/stat_plots'
-        filename = os.path.join(output_folder, f"{self.fitness_function}_{name}")
+        filename = os.path.join(output_folder, f"{self.dimensions}_dimensions_{name}")
         fig.savefig(filename)
 
     def print_best_chromosome(self) -> None:
         print("-- FIRST GEN --")
-        print("Chromo: ", self.best_chromo[0].get_genes())
+        # print("Chromo: ", self.best_chromo[0].get_genes())
         print("Score: ", self.best_chromo[0].get_fitness_score())
         print("-- FINAL GEN --")
-        print("Chromo", self.best_chromo[-1].get_genes())
+        # print("Chromo", self.best_chromo[-1].get_genes())
         print("Score: ", self.best_chromo[-1].get_fitness_score())
 
     def get_ga_statistics(self) -> ():
