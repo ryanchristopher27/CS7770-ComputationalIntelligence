@@ -13,8 +13,8 @@ from tqdm import tqdm
 
 
 def main():
-    run_genetic_algorithms(dimensions = 2)
-    # run_single_genetic_algorithm()
+    # run_genetic_algorithms(dimensions = 2)
+    run_single_genetic_algorithm()
 
 def run_single_genetic_algorithm() -> None:
     generations = 50
@@ -22,10 +22,10 @@ def run_single_genetic_algorithm() -> None:
     population_size = 20
     initialization_type = "uniform" # gaussian, uniform
     selection_type = "rws" # rws, tournament
-    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
+    fitness_function = "himmelblau" # rastrigin, spherical, rosenbrock, booth, himmelblau
     crossover_type = "centroid" # two_point, binary_mask, 2_parent_average, centroid
     mutation_type = "gaussian" # gaussian, uniform, swap
-    termination_type = "convergence" # generations, convergence
+    termination_type = "generations" # generations, convergence
     mutation_rate_individual = 0.4
     mutation_rate_genes = 0.4
     eletism = True
@@ -54,8 +54,8 @@ def run_single_genetic_algorithm() -> None:
 
 
 def run_genetic_algorithms(dimensions :int) -> None:
-    generations = 30
-    dimensions = 2
+    generations = 50
+    # dimensions = 2
     population_size = 20
     initialization_types = ["gaussian", "uniform"]
     selection_types = ["rws", "tournament"]

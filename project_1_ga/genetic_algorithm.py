@@ -192,7 +192,7 @@ class GeneticAlgorithm:
                 p1_index = random.randint(0, len(self.population)-1)
                 p2_index = random.randint(0, len(self.population)-1)
 
-                child = Chromosome(self.population[p1_index].get_fitness_score())
+                child = Chromosome(None)
                 
                 avg_genes = []
                 for j in range(self.dimensions):
@@ -206,21 +206,29 @@ class GeneticAlgorithm:
         elif self.crossover_type == 'centroid':
 
             for i in range(0, required_children):
+                # Get Parents
                 p1_index = random.randint(0, len(self.population)-1)
                 p2_index = random.randint(0, len(self.population)-1)
                 p3_index = random.randint(0, len(self.population)-1)
 
-                centroid_x = (self.population[p1_index].get_genes()[0] +
-                              self.population[p2_index].get_genes()[0] +
-                              self.population[p3_index].get_genes()[0]) / 3
+                # centroid_x = (self.population[p1_index].get_genes()[0] +
+                #               self.population[p2_index].get_genes()[0] +
+                #               self.population[p3_index].get_genes()[0]) / 3
+                # centroid_y = (self.population[p1_index].get_genes()[1] +
+                #               self.population[p2_index].get_genes()[1] +
+                #               self.population[p3_index].get_genes()[1]) / 3
                 
-                centroid_y = (self.population[p1_index].get_genes()[1] +
-                              self.population[p2_index].get_genes()[1] +
-                              self.population[p3_index].get_genes()[1]) / 3
-                
-                child = Chromosome(self.population[p1_index].get_fitness_score())
+                child_genes = []
+                for j in range(self.dimensions):
+                    centroid_gene = (self.population[p1_index].get_genes()[j] +
+                                     self.population[p2_index].get_genes()[j] +
+                                     self.population[p3_index].get_genes()[j]) / 3
+                    child_genes.append(centroid_gene)
 
-                child.set_genes([centroid_x, centroid_y])
+                child = Chromosome(None)
+
+                # child.set_genes([centroid_x, centroid_y])
+                child.set_genes(child_genes)
 
                 population_nextgen.append(child)
 
@@ -261,6 +269,9 @@ class GeneticAlgorithm:
                             else:
                                 chromosome.genes[j], chromosome.genes[0] = chromosome.genes[0], chromosome.genes[j]
                             
+                        if self.mutation_type == "eletist": 
+                            eletist_index = random.randint(0, self.eletism_offset-1)
+                            chromosome.genes[j] = np.mean([chromosome.genes[j], self.population[eletist_index].get_genes()[j]])
 
             population_nextgen.append(copy.deepcopy(chromosome))
         
