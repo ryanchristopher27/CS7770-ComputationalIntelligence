@@ -13,10 +13,10 @@ from tqdm import tqdm
 
 
 def main():
-    # run_genetic_algorithms(dimensions = 2)
+    run_genetic_algorithms(dimensions = 2)
     # run_single_genetic_algorithm()
     # run_dimensionality_experiment()
-    run_mutation_vs_crossover_experiment()
+    # run_mutation_vs_crossover_experiment()
 
 def run_single_genetic_algorithm() -> None:
     generations = 50
