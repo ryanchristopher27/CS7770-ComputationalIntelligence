@@ -13,9 +13,10 @@ from tqdm import tqdm
 
 
 def main():
-    # run_genetic_algorithms(dimensions = 2)
+    run_genetic_algorithms(dimensions = 2)
     # run_single_genetic_algorithm()
-    run_dimensionality_experiment()
+    # run_dimensionality_experiment()
+    # run_mutation_vs_crossover_experiment()
 
 def run_single_genetic_algorithm() -> None:
     generations = 50
@@ -31,6 +32,7 @@ def run_single_genetic_algorithm() -> None:
     mutation_rate_genes = 0.3
     elitism = True
     elitism_size = 2
+    selection_size = 10
     plot = True
 
     ga = GeneticAlgorithm(generations=generations,
@@ -45,7 +47,8 @@ def run_single_genetic_algorithm() -> None:
                           mutation_rate_genes=mutation_rate_genes,
                           termination_type=termination_type,
                           elitism=elitism,
-                          elitism_size = elitism_size,
+                          elitism_size=elitism_size,
+                          selection_size=selection_size,
                           plot = plot,
     )
 
@@ -73,6 +76,7 @@ def run_genetic_algorithms(dimensions :int) -> None:
     mutation_rate_genes = 0.3
     elitism = True
     elitism_size = 2
+    selection_size = 10
     plot = False
 
     # Use itertools.product to create all combinations
@@ -130,6 +134,7 @@ def run_genetic_algorithms(dimensions :int) -> None:
                             termination_type=termination_type,
                             elitism=elitism,
                             elitism_size = elitism_size,
+                            selection_size=selection_size,
                             plot = plot
             )
 
@@ -192,6 +197,7 @@ def run_dimensionality_experiment() -> None:
     mutation_rate_genes = 0.3
     elitism = True
     elitism_size = 2
+    selection_size = 10
     plot = False
 
     ga = GeneticAlgorithm(generations=generations,
@@ -207,12 +213,114 @@ def run_dimensionality_experiment() -> None:
                           termination_type=termination_type,
                           elitism=elitism,
                           elitism_size = elitism_size,
+                          selection_size=selection_size,
                           plot = plot,
     )
 
     ga.run_generations()
     ga.print_best_chromosome()
     ga.plot_stats()
+
+def run_mutation_vs_crossover_experiment() -> None:
+    generations = 50
+    dimensions = 2
+    population_size = 20
+    initialization_type = "uniform" # gaussian, uniform
+    selection_type = "tournament" # rws, tournament
+    fitness_function = "rastrigin" # rastrigin, spherical, rosenbrock, booth, himmelblau
+    crossover_type = "2_parent_average" # two_point, binary_mask, 2_parent_average, centroid
+    mutation_type = "gaussian" # gaussian, uniform, swap
+    termination_type = "generations" # generations, convergence
+    # mutation_rate_individual = 0.5
+    # mutation_rate_genes = 0.3
+    elitism = True
+    elitism_size = 2
+    # selection_size = 10
+    plot = False
+
+    m_rate_individuals = [0.1, 0.3, 0.5]
+    m_rate_genes = [0.1, 0.3, 0.5]
+    selection_sizes = [14, 10, 6]
+
+    operators = list(product(m_rate_individuals,
+                             m_rate_genes,
+                             selection_sizes,
+                            ))
+    
+    mut_cross_stats = pd.DataFrame({'m_rate_individual': [],
+                             'm_rate_gene': [],
+                             'crossover_size': [],
+                             'avg_fit_score': [],
+                             'std_fit_score': [],
+                             'max_fit_score': [],
+                             'min_fit_score': [],
+                             'avg_gens': [],
+                             })
+    
+    for i, operator in enumerate(operators):
+        m_rate_individual = operator[0]
+        m_rate_gene = operator[1]
+        selection_size = operator[2]
+
+        print(f"------ {i+1}/{len(operators)} ------")
+        print(operator)
+        print("-----------------------------------\n")
+
+        fitness_scores = []
+
+        completed_gens = []
+        for i in tqdm(range(100)):
+            ga = GeneticAlgorithm(generations=generations,
+                                dimensions=dimensions,
+                                population_size=population_size,
+                                initialization_type=initialization_type,
+                                selection_type=selection_type,
+                                fitness_function=fitness_function,
+                                crossover_type=crossover_type,
+                                mutation_type=mutation_type,
+                                mutation_rate_individual=m_rate_individual,
+                                mutation_rate_genes=m_rate_gene,
+                                termination_type=termination_type,
+                                elitism=elitism,
+                                elitism_size = elitism_size,
+                                selection_size=selection_size,
+                                plot = plot,
+            )
+
+            ga.run_generations()
+            avg, std, fitness_score = ga.get_ga_statistics()
+
+            fitness_scores.append(fitness_score)
+            completed_gens.append(ga.get_completed_generations())
+
+            # ga.print_best_chromosome()
+            # ga.plot_stats()
+
+        avg_fit_score = np.mean(fitness_scores)
+        std_fit_score = np.std(fitness_scores)
+        max_fit_score = max(fitness_scores)
+        min_fit_score = min(fitness_scores)
+
+        avg_gens = np.mean(completed_gens)
+
+        data = {'m_rate_individual': m_rate_individual,
+                   'm_rate_gene': m_rate_gene,
+                   'crossover_size': population_size - (selection_size + elitism_size),
+                   'avg_fit_score': avg_fit_score,
+                   'std_fit_score': std_fit_score,
+                   'max_fit_score': max_fit_score,
+                   'min_fit_score': min_fit_score,
+                   'avg_gens': avg_gens, 
+                   }
+        
+        ga_stat = pd.Series(data)
+
+        mut_cross_stats.loc[len(mut_cross_stats)] = ga_stat
+
+        mut_cross_stats.to_csv('results/mutation_vs_crossover_experiment/m_vs_c_stats.csv', index=False)  # Set index=False to exclude row numbers in the output
+
+
+        
 
 if __name__=="__main__":
     main()
