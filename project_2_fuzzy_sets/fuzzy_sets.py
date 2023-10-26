@@ -15,6 +15,10 @@ def iris_classification() -> None:
                        "sepal_width": 1,
                        "petal_length": 2,
                        "petal_width": 3}
+    
+    class_dictionary = {"Setosa": 0,
+                        "Versicolor": 1,
+                        "Virginica": 2}
 
     # Rules
     # ------------------------------
@@ -57,7 +61,25 @@ def iris_classification() -> None:
     pw_class = pw_fis.classify_mamdani(pw_eval)
     pl_class = pl_fis.classify_mamdani(pl_eval)
 
-    print("done")
+    iris_classification = []
+    for i in range(X.shape[0]):
+        # Take highest value from rules
+        if pw_class[i][1] > pl_class[i][1]:
+            iris_classification.append(class_dictionary[pw_class[i][0]])
+        else:
+            iris_classification.append(class_dictionary[pl_class[i][0]])
+
+    correct = 0
+    # Compare labels to classification
+    for i in range(X.shape[0]):
+        if Y[i] == iris_classification[i]:
+            correct += 1
+    
+    accuracy = correct / 150 * 100
+
+
+
+    print(f"Accuracy: {accuracy}%")
 
 
 def plot_iris_data(iris) -> None:
