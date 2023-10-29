@@ -1,24 +1,38 @@
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
+from rule import Rule
 
 class FuzzyInferenceSystem:
     # membership_functions = {}
 
-    def __init__(self, name :str, domain_start :float, domain_end :float, domain_step :float) -> None: 
+    def __init__(self):
         self.membership_functions = {}
+        self.domains = {}
+        self.output_membership_functions = {}
+        self.rules = []
 
-        self.name = name
-        self.domain_start = domain_start
-        self.domain_end = domain_end
-        self.domain_step = domain_step
+    # def __init__(self, name :str, domain_start :float, domain_end :float, domain_step :float) -> None: 
+    #     self.membership_functions = {}
+    #     self.domains = {}
 
-        self.domain = np.arange(domain_start, domain_end, domain_step)
+    #     self.name = name
+    #     self.domain_start = domain_start
+    #     self.domain_end = domain_end
+    #     self.domain_step = domain_step
+
+    #     self.domain = np.arange(domain_start, domain_end, domain_step)
         # self.domain = [x for x in range(domain_start, domain_end, domain_step)]
+
+    # Domains
+    # ----------------------------------------------------------------------
+    def create_domain(self, name: str, domain_start :float, domain_end :float, domain_step :float) -> None:
+        domain = np.arange(domain_start, domain_end, domain_step)
+        self.domains[name] = domain
 
     # Membership Functions
     # ----------------------------------------------------------------------
-    def create_trapezoid_mf(self, name :str, a :float, b :float, c :float, d :float) -> None:
+    def create_trapezoid_mf(self, domain :str, name :str, a :float, b :float, c :float, d :float, io :str) -> None:
         mf = []
         if a == b:
             slope_ab = 0
@@ -30,7 +44,7 @@ class FuzzyInferenceSystem:
         else:
             slope_cd = 1 / (c - d)
         y_int_cd = 1 - (slope_cd * c)
-        for i in self.domain:
+        for i in self.domains[domain]:
             if i > a and i < b:
                 val = (slope_ab * i) + y_int_ab
                 mf.append(val)
@@ -42,27 +56,49 @@ class FuzzyInferenceSystem:
             else:
                 mf.append(0)
 
-        self.membership_functions[name] = mf
+        if io != "o":
+            self.membership_functions[name] = mf
+        else:
+            self.output_membership_functions[name] = mf
 
-    def create_triangle_mf(self, name :str, a :float, b :float, c :float) -> None:
-        self.create_trapezoid_mf(name, a, b, b, c)
+    def create_triangle_mf(self, domain: str, name :str, a :float, b :float, c :float, io :str) -> None:
+        self.create_trapezoid_mf(domain, name, a, b, b, c, io)
 
-    def create_gaussian_mf(self, name :str, mu :float, sigma :float) -> None:
+    def create_gaussian_mf(self, domain :str, name :str, mu :float, sigma :float, io :str) -> None:
         mf = []
         A = 1
-        for i in self.domain:
+        for i in self.domains[domain]:
             val = A * np.exp(-(i - mu) ** 2 / (2 * sigma ** 2))
             mf.append(val)
 
-        self.membership_functions[name] = mf
+        if io != "o":
+            self.membership_functions[name] = mf
+        else:
+            self.output_membership_functions[name] = mf
 
-
+    # Rules
+    # ----------------------------------------------------------------------
+    def create_rule(self, name :str, input_mfs :[str], output_mf :str) -> None:
+        self.rules.append(Rule(name, input_mfs, output_mf))
+        
     # Evalutation
     # ----------------------------------------------------------------------
-    def evaluate_mamdani(self, x :float) -> {}:
+    def evaluate_mamdani(self, data :{}) -> {}:
         evaluation = {}
-        for key in self.membership_functions:
-            evaluation[key] = self.membership_functions[key][self.get_mf_index(x)]
+        for rule in self.rules:
+            min_val = 1
+            for mf in rule.get_input_mfs():
+                
+                mf_val = self.membership_functions[mf][self.get_mf_index(mf, data)]
+                # Update Min
+                if mf_val < min_val:
+                    min_val = mf_val
+
+
+            evaluation[rule.get_name()] = [min(x, min_val) for x in self.output_membership_functions[rule.get_output_mf()]]
+
+        # for key in self.membership_functions:
+        #     evaluation[key] = self.membership_functions[key][self.get_mf_index(x)]
 
         return evaluation
     
@@ -77,14 +113,17 @@ class FuzzyInferenceSystem:
 
     # Plots
     # ----------------------------------------------------------------------
-    def plot_membership_functions(self) -> None:
+    def plot_membership_functions(self, domain :str) -> None:
         plt.figure(figsize=(8, 5))
         colors = ['skyblue', 'red', 'green', 'yellow', 'orange']
-        for i, mf in enumerate(self.membership_functions):
-            plt.plot(self.domain, self.membership_functions[mf], 'k')
-            plt.fill_between(self.domain, self.membership_functions[mf], color=colors[i], alpha=0.4)
+        color_i = 0
+        for mf in self.membership_functions:
+            if domain in mf:
+                plt.plot(self.domains[domain], self.membership_functions[mf], 'k')
+                plt.fill_between(self.domains[domain], self.membership_functions[mf], color=colors[color_i], alpha=0.4)
+                color_i += 1
 
-        plt.title(f"{self.name} Plot")
+        plt.title(f"{domain} Plot")
         plt.ylabel('Fuzzy membership')
         plt.xlabel('The domain of interest')
         plt.ylim(-0.1, 1.1)
@@ -93,5 +132,8 @@ class FuzzyInferenceSystem:
 
     # Helpers
     # ----------------------------------------------------------------------
-    def get_mf_index(self, val :float) -> int:
+    def get_mf_index(self, mf :str, data :{}) -> int:
+        for key in data:
+            if key in mf:
+                val = data[key]
         return int(val * 10)
