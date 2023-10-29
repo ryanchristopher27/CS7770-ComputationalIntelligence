@@ -1,6 +1,6 @@
 #Imports
 from fuzzy_inference_system import FuzzyInferenceSystem
-from sklearn import datasets
+from sklearn import datasets, metrics
 import matplotlib.pyplot as plt
 
 def main():
@@ -9,7 +9,6 @@ def main():
 
 def iris_classification() -> None:
     iris = datasets.load_iris()
-    plot_iris_data(iris)
 
     iris_dictionary = {"sepal_length": 0, 
                        "sepal_width": 1,
@@ -19,70 +18,72 @@ def iris_classification() -> None:
     class_dictionary = {"Setosa": 0,
                         "Versicolor": 1,
                         "Virginica": 2}
-
-    # Rules
-    # ------------------------------
-        # 1) If Petal Width Low
-        #    And Petal Length Low
-                # Setosa
-        # 2) If Petal Length Mid
-        #    Petal Length > 2.5
-                # Versicolor
+    
+    # Plot Iris Data
+    # plot_iris_data(iris)
+    # plot_iris_data_specific(iris, 3, 2)
             
     fis = FuzzyInferenceSystem()
 
     # Add domains
     fis.create_domain("PW", 0, 3, 0.1)
     fis.create_domain("PL", 0, 8, 0.1)
-    fis.create_domain("Setosa", 0, 101, 1)
-    fis.create_domain("Versicolor", 0, 101, 1)
-    fis.create_domain("Virginica", 0, 101, 1)
+    fis.create_domain("Output", 0, 100, 1)
+    # fis.create_domain("Setosa", 0, 101, 1)
+    # fis.create_domain("Versicolor", 0, 101, 1)
+    # fis.create_domain("Virginica", 0, 101, 1)
+
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
     fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.5, 1.8, "i")
-    fis.create_trapezoid_mf("PW", "PW_High", 1.4, 1.8, 2.8, 3, "i")
+    fis.create_trapezoid_mf("PW", "PW_High", 1.4, 1.9, 2.8, 3, "i")
     # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.2, 4.4, "i")
-    fis.create_trapezoid_mf("PL", "PL_High", 4.1, 4.3, 8, 8, "i")
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.3, 4.7, "i")
+    fis.create_trapezoid_mf("PL", "PL_High", 4.4, 4.7, 8, 8, "i")
     # fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
         # Setosa
-    fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
-    fis.create_trapezoid_mf("Setosa", "Setosa_Mid", 30, 40, 60, 70, "o")
-    fis.create_trapezoid_mf("Setosa", "Setosa_High", 60, 70, 100, 100, "o")
+    # fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
+    # fis.create_trapezoid_mf("Setosa", "Setosa_Mid", 30, 40, 60, 70, "o")
+    # fis.create_trapezoid_mf("Setosa", "Setosa_High", 60, 70, 100, 100, "o")
         # Versicolor
-    fis.create_trapezoid_mf("Versicolor", "Versicolor_Low", 0, 10, 30, 40, "o")
-    fis.create_trapezoid_mf("Versicolor", "Versicolor_Mid", 30, 40, 60, 70, "o")
-    fis.create_trapezoid_mf("Versicolor", "Versicolor_High", 60, 70, 100, 100, "o")
+    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Low", 0, 10, 30, 40, "o")
+    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Mid", 30, 40, 60, 70, "o")
+    # fis.create_trapezoid_mf("Versicolor", "Versicolor_High", 60, 70, 100, 100, "o")
         # Virginica
-    fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
-    fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
-    fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 100, 100, "o")
+    # fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
+    # fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
+    # fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 100, 100, "o")
+
+    fis.create_trapezoid_mf("Output", "Setosa", 0, 10, 30, 40, "o")
+    fis.create_trapezoid_mf("Output", "Versicolor", 30, 40, 60, 70, "o")
+    fis.create_trapezoid_mf("Output", "Virginica", 60, 70, 90, 100, "o")
              
+    # Rules
+    # ------------------------------
+        # 1) If Petal Width Low
+        #    And Petal Length Low
+                # Setosa
+        # 2) If Petal Length Mid
+        #    Petal Width Mid
+                # Versicolor
+        # 3) If Petal Length High
+        #   Petal Width Hight
+                # Virginica
+
     # Create Rules
         # Rule 1
-    fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
+    fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa")
         # Rule 2
-    fis.create_rule("Rule2", ["PL_Mid"], "Versicolor_High")
+    fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor")
+        # Rule 3
+    fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica")
     
-    # Petal Width
-    # pw_fis = FuzzyInferenceSystem("Petal Width", 0, 3, 0.1)
-    # pw_fis.create_trapezoid_mf("PW_Low", 0, 0, 0.8, 1)
-    # pw_fis.create_trapezoid_mf("PW_Mid", 0.8, 0.9, 1.5, 1.8)
-    # pw_fis.create_trapezoid_mf("PW_High", 1.4, 1.8, 2.8, 3)
-    # pw_fis.plot_membership_functions()
-
-    # Petal Length
-    # pl_fis = FuzzyInferenceSystem("Petal Length", 0, 8, 0.1)
-    # pl_fis.create_trapezoid_mf("PL_Low", 0, 0, 2.3, 2.5)
-    # pl_fis.create_trapezoid_mf("PL_Mid", 2.5, 2.7, 4.2, 4.4)
-    # pl_fis.create_trapezoid_mf("PL_High", 4.1, 4.3, 8, 8)
-    # pl_fis.plot_membership_functions()
 
     # Iris Evaluation
     X = iris.data
@@ -91,27 +92,10 @@ def iris_classification() -> None:
     evaluations = []
     for i in range(X.shape[0]):
         x = X[i]
-
         data = {"SL": x[0], "SW": x[1], "PL": x[2], "PW": x[3]}
-
         evaluations.append(fis.evaluate_mamdani(data))
-        
-        # Petal Width Evaluation
-        # pw_eval.append(fis.evaluate_mamdani(x[iris_dictionary["petal_width"]]))
-
-        # Petal Length Evaluation
-        # pl_eval.append(pl_fis.evaluate_mamdani(x[iris_dictionary["petal_length"]]))
-
-    pw_class = fis.classify_mamdani(pw_eval)
-    pl_class = fis.classify_mamdani(pl_eval)
-
-    iris_classification = []
-    for i in range(X.shape[0]):
-        # Take highest value from rules
-        if pw_class[i][1] > pl_class[i][1]:
-            iris_classification.append(class_dictionary[pw_class[i][0]])
-        else:
-            iris_classification.append(class_dictionary[pl_class[i][0]])
+    
+    iris_classification = fis.defuzzification_mamdani(evaluations)
 
     correct = 0
     # Compare labels to classification
@@ -121,9 +105,9 @@ def iris_classification() -> None:
     
     accuracy = correct / 150 * 100
 
-
-
     print(f"Accuracy: {accuracy}%")
+
+    # plot_confusion_matrix(Y, iris_classification)
 
 
 def plot_iris_data(iris) -> None:
@@ -135,12 +119,37 @@ def plot_iris_data(iris) -> None:
             X2 = iris.data[:,j]
             y = iris.target
             axs[i,j].scatter(X1, X2, c=y, cmap=plt.cm.Set1, edgecolor='k')
-            plt.xticks(())
-            plt.yticks(())
+            # plt.xticks(())
+            # plt.yticks(())
             axs[i,j].set(xlabel=features[i], ylabel=features[j])
             
 
     plt.show()
+
+def plot_iris_data_specific(iris, x :int, y :int) -> None:
+    features = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
+    legend = ["Setosa", "Versicolor", "Virginica"]
+    X1 = iris.data[:,x]
+    X2 = iris.data[:,y]
+    c = iris.target
+    # plt.scatter(X1, X2, c=c)
+    # Create a scatter plot for each class
+    for class_label in range(3):
+        mask = (c == class_label)
+        plt.scatter(X1[mask], X2[mask], label=legend[class_label])
+
+    plt.title(f'{features[x]} vs. {features[y]}')
+    plt.xlabel(f'{features[x]}')
+    plt.ylabel(f'{features[y]}')
+    plt.legend(legend)
+    plt.show()
+
+def plot_confusion_matrix(actual :[], predicted :[]) -> None:
+    display_labels = ['Setosa', 'Versicolor', 'Virginica']
+    confusion_matrix = metrics.confusion_matrix(actual, predicted)
+    cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = display_labels)
+    cm_display.plot()
+    plt.show() 
 
 
 def test():

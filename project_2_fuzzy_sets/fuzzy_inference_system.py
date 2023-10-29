@@ -10,6 +10,7 @@ class FuzzyInferenceSystem:
         self.membership_functions = {}
         self.domains = {}
         self.output_membership_functions = {}
+        # self.output_membership_function = []
         self.rules = []
 
     # def __init__(self, name :str, domain_start :float, domain_end :float, domain_step :float) -> None: 
@@ -60,6 +61,7 @@ class FuzzyInferenceSystem:
             self.membership_functions[name] = mf
         else:
             self.output_membership_functions[name] = mf
+            # self.output_membership_function = mf
 
     def create_triangle_mf(self, domain: str, name :str, a :float, b :float, c :float, io :str) -> None:
         self.create_trapezoid_mf(domain, name, a, b, b, c, io)
@@ -75,6 +77,7 @@ class FuzzyInferenceSystem:
             self.membership_functions[name] = mf
         else:
             self.output_membership_functions[name] = mf
+            # self.output_membership_function = mf
 
     # Rules
     # ----------------------------------------------------------------------
@@ -96,18 +99,22 @@ class FuzzyInferenceSystem:
 
 
             evaluation[rule.get_name()] = [min(x, min_val) for x in self.output_membership_functions[rule.get_output_mf()]]
+            # evaluation[rule.get_name()] = [min(x, min_val) for x in self.output_membership_function]
 
         # for key in self.membership_functions:
         #     evaluation[key] = self.membership_functions[key][self.get_mf_index(x)]
 
         return evaluation
     
-    # Gets max value for each data point and classifies it
-    def classify_mamdani(self, evals :[]) -> []:
+    def defuzzification_mamdani(self, evals :[]) -> []:
         classification = []
-        for i in evals:
-            c = max(i, key = i.get)
-            classification.append((c, i[c]))
+        for rules in evals:
+            combo = [0 for x in range(len(self.domains["Output"]))]
+            for key in rules:
+                combo = np.add(combo, rules[key])
+
+            cl = self.classify_iris(self.centroid_calc(combo))
+            classification.append(cl)
 
         return classification
 
@@ -137,3 +144,19 @@ class FuzzyInferenceSystem:
             if key in mf:
                 val = data[key]
         return int(val * 10)
+    
+    def centroid_calc(self, combo :[]) -> float:
+        # mult = np.dot(combo, self.domains["Output"])
+        # numerator = sum(np.dot(combo, self.domains["Output"]))
+        numerator = sum([combo[i] * x for i, x in enumerate(self.domains["Output"])])
+        denominator = sum(combo)
+
+        return numerator / denominator
+    
+    def classify_iris(self, val :float) -> int:
+        if val <= 33.3:
+            return 0
+        elif val > 33.3 and val <= 66.6:
+            return 1
+        else:
+            return 2
