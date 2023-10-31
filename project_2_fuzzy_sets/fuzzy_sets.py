@@ -25,8 +25,8 @@ def iris_classification() -> None:
     fis = FuzzyInferenceSystem()
 
     # Add domains
-    fis.create_domain("PW", 0, 3, 0.01)
-    fis.create_domain("PL", 0, 8, 0.01)
+    fis.create_domain("PW", 0, 3, 0.1)
+    fis.create_domain("PL", 0, 8, 0.1)
     fis.create_domain("Output", 0, 100, 1)
 
     # Create Petal Width Membership Functions
