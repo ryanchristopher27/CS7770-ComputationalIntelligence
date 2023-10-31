@@ -3,21 +3,24 @@ from fuzzy_inference_system import FuzzyInferenceSystem
 from sklearn import datasets, metrics
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
+
 def main():
-    # iris_classification()
-    optimization_test()
+    iris_classification()
+    # optimization_test()
 
 
 def optimization_test():
-    pw_vals = np.arange(1.4, 2, 0.1)
-    pl_vals = np.arange(4.2, 4.8, 0.1)
+    pw_vals = np.arange(1.4, 2.4, 0.1)
+    pl_vals = np.arange(4.3, 5, 0.1)
     inc_vals = np.arange(0.1, 0.5, 0.1)
 
     best_acc = 0
 
     best_vals = (0, 0, 0, 0, 0, 0, 0, 0)
 
-    for pw_mid in pw_vals:
+    for i, pw_mid in tqdm(enumerate(pw_vals)):
+        print(f'{i+1}/{len(pw_vals)}')
         for pw_high in pw_vals:
             for pl_mid in pl_vals:
                 for pl_high in pl_vals:
@@ -36,12 +39,12 @@ def optimization_test():
                             if acc > best_acc:
                                 best_acc = acc
                                 best_vals = (pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2)
-        print(f'{pw_mid}')
 
     print(f'Best Accuracy: {best_acc}')
     print(f'Combo: {best_vals}')
 
-def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2) -> float:
+# def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2) -> float:
+def iris_classification() -> None:
     iris = datasets.load_iris()
 
     iris_dictionary = {"sepal_length": 0, 
@@ -60,44 +63,27 @@ def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_m
     fis = FuzzyInferenceSystem()
 
     # Add domains
-    fis.create_domain("PW", 0, 3, 0.01)
-    fis.create_domain("PL", 0, 8, 0.01)
+    fis.create_domain("PW", 0, 3, 0.1)
+    fis.create_domain("PL", 0, 8, 0.1)
     fis.create_domain("Output", 0, 100, 1)
-    # fis.create_domain("Setosa", 0, 101, 1)
-    # fis.create_domain("Versicolor", 0, 101, 1)
-    # fis.create_domain("Virginica", 0, 101, 1)
-
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
-    # fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.5, 1.8, "i")
-    # fis.create_trapezoid_mf("PW", "PW_High", 1.4, 1.9, 2.8, 3, "i")
-    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, pw_mid_3, pw_mid_4, "i")
-    fis.create_trapezoid_mf("PW", "PW_High", pw_high_1, pw_high_2, 2.8, 3, "i")
+    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
+    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
+    # fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, pw_mid_3, pw_mid_4, "i")
+    # fis.create_trapezoid_mf("PW", "PW_High", pw_high_1, pw_high_2, 2.8, 3, "i")
     # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
-    # fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.3, 4.7, "i")
-    # fis.create_trapezoid_mf("PL", "PL_High", 4.4, 4.7, 8, 8, "i")
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, pl_mid_3, pl_mid_4, "i")
-    fis.create_trapezoid_mf("PL", "PL_High", pl_high_1, pl_high_2, 8, 8, "i")
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
+    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
+    # fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, pl_mid_3, pl_mid_4, "i")
+    # fis.create_trapezoid_mf("PL", "PL_High", pl_high_1, pl_high_2, 8, 8, "i")
     # fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
-        # Setosa
-    # fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Setosa", "Setosa_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Setosa", "Setosa_High", 60, 70, 100, 100, "o")
-        # Versicolor
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_High", 60, 70, 100, 100, "o")
-        # Virginica
-    # fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 100, 100, "o")
-
     fis.create_trapezoid_mf("Output", "Setosa", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Output", "Versicolor", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Output", "Virginica", 60, 70, 90, 100, "o")
@@ -143,11 +129,11 @@ def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_m
     
     accuracy = correct / 150 * 100
 
-    # print(f"Accuracy: {accuracy}%")
+    print(f"Accuracy: {accuracy}%")
 
-    # plot_confusion_matrix(Y, iris_classification)
+    plot_confusion_matrix(Y, iris_classification)
 
-    return accuracy
+    # return accuracy
 
 
 def plot_iris_data(iris) -> None:
