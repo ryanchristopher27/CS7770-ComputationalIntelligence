@@ -3,9 +3,12 @@ from fuzzy_inference_system import FuzzyInferenceSystem
 from sklearn import datasets, metrics
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
+
 def main():
     iris_classification()
 
+    
 def iris_classification() -> None:
     iris = datasets.load_iris()
 
@@ -31,14 +34,14 @@ def iris_classification() -> None:
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
-    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 2, 2.2, "i")
-    fis.create_trapezoid_mf("PW", "PW_High", 1.6, 2.3, 2.8, 3, "i")
+    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
+    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
     # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.4, 4.9, "i")
-    fis.create_trapezoid_mf("PL", "PL_High", 4.5, 4.9, 8, 8, "i")
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
+    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
     # fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
@@ -83,7 +86,7 @@ def iris_classification() -> None:
     
     accuracy = correct / 150 * 100
 
-    # print(f"Accuracy: {accuracy}%")
+    print(f"Accuracy: {accuracy}%")
 
     plot_confusion_matrix(Y, iris_classification)
 
