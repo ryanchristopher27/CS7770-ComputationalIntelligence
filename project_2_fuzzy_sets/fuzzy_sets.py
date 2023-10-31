@@ -4,44 +4,9 @@ from sklearn import datasets, metrics
 import matplotlib.pyplot as plt
 import numpy as np
 def main():
-    # iris_classification()
-    optimization_test()
+    iris_classification()
 
-
-def optimization_test():
-    pw_vals = np.arange(1.4, 2, 0.1)
-    pl_vals = np.arange(4.2, 4.8, 0.1)
-    inc_vals = np.arange(0.1, 0.5, 0.1)
-
-    best_acc = 0
-
-    best_vals = (0, 0, 0, 0, 0, 0, 0, 0)
-
-    for pw_mid in pw_vals:
-        for pw_high in pw_vals:
-            for pl_mid in pl_vals:
-                for pl_high in pl_vals:
-                    for pw_inc in inc_vals:
-                        for pl_inc in inc_vals:
-                            pw_mid_3 = pw_mid
-                            pw_mid_4 = pw_mid + pw_inc
-                            pw_high_1 = pw_high - pw_inc
-                            pw_high_2 = pw_high
-                            pl_mid_3 = pl_mid
-                            pl_mid_4 = pl_mid + pl_inc
-                            pl_high_1 = pl_high - pl_inc
-                            pl_high_2 = pl_high
-
-                            acc = iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2)
-                            if acc > best_acc:
-                                best_acc = acc
-                                best_vals = (pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2)
-        print(f'{pw_mid}')
-
-    print(f'Best Accuracy: {best_acc}')
-    print(f'Combo: {best_vals}')
-
-def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_mid_4, pl_high_1, pl_high_2) -> float:
+def iris_classification() -> None:
     iris = datasets.load_iris()
 
     iris_dictionary = {"sepal_length": 0, 
@@ -63,41 +28,20 @@ def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_m
     fis.create_domain("PW", 0, 3, 0.01)
     fis.create_domain("PL", 0, 8, 0.01)
     fis.create_domain("Output", 0, 100, 1)
-    # fis.create_domain("Setosa", 0, 101, 1)
-    # fis.create_domain("Versicolor", 0, 101, 1)
-    # fis.create_domain("Virginica", 0, 101, 1)
-
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
-    # fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.5, 1.8, "i")
-    # fis.create_trapezoid_mf("PW", "PW_High", 1.4, 1.9, 2.8, 3, "i")
-    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, pw_mid_3, pw_mid_4, "i")
-    fis.create_trapezoid_mf("PW", "PW_High", pw_high_1, pw_high_2, 2.8, 3, "i")
+    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 2, 2.2, "i")
+    fis.create_trapezoid_mf("PW", "PW_High", 1.6, 2.3, 2.8, 3, "i")
     # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
-    # fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.3, 4.7, "i")
-    # fis.create_trapezoid_mf("PL", "PL_High", 4.4, 4.7, 8, 8, "i")
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, pl_mid_3, pl_mid_4, "i")
-    fis.create_trapezoid_mf("PL", "PL_High", pl_high_1, pl_high_2, 8, 8, "i")
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.4, 4.9, "i")
+    fis.create_trapezoid_mf("PL", "PL_High", 4.5, 4.9, 8, 8, "i")
     # fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
-        # Setosa
-    # fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Setosa", "Setosa_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Setosa", "Setosa_High", 60, 70, 100, 100, "o")
-        # Versicolor
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Versicolor", "Versicolor_High", 60, 70, 100, 100, "o")
-        # Virginica
-    # fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
-    # fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
-    # fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 100, 100, "o")
-
     fis.create_trapezoid_mf("Output", "Setosa", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Output", "Versicolor", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Output", "Virginica", 60, 70, 90, 100, "o")
@@ -111,18 +55,14 @@ def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_m
         #    Petal Width Mid
                 # Versicolor
         # 3) If Petal Length High
-        #   Petal Width Hight
+        #    Petal Width Hight
                 # Virginica
 
     # Create Rules
-        # Rule 1
     fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa")
-        # Rule 2
     fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor")
-        # Rule 3
     fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica")
     
-
     # Iris Evaluation
     X = iris.data
     Y = iris.target
@@ -145,9 +85,7 @@ def iris_classification(pw_mid_3, pw_mid_4, pw_high_1, pw_high_2, pl_mid_3, pl_m
 
     # print(f"Accuracy: {accuracy}%")
 
-    # plot_confusion_matrix(Y, iris_classification)
-
-    return accuracy
+    plot_confusion_matrix(Y, iris_classification)
 
 
 def plot_iris_data(iris) -> None:
@@ -190,25 +128,6 @@ def plot_confusion_matrix(actual :[], predicted :[]) -> None:
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = display_labels)
     cm_display.plot()
     plt.show() 
-
-
-def test():
-    start, end, step = 0, 10.5, 0.1
-    fis = FuzzyInferenceSystem("Test", start, end, step)
-
-    fis.create_trapezoid_mf("mf_1", 1, 2, 4, 5)
-    # fis.create_trapezoid_mf("mf_2", 4, 5, 6, 8)
-    # fis.create_trapezoid_mf("mf_3", 7, 8, 9, 10)
-
-    # fis.create_triangle_mf("mf_7", 1, 2, 4)
-    fis.create_triangle_mf("mf_8", 4, 5, 6)
-    # fis.create_triangle_mf("mf_9", 7, 8, 9)
-
-    # fis.create_gaussian_mf("mf_4", 2, 1)
-    # fis.create_gaussian_mf("mf_5", 4, 1)
-    fis.create_gaussian_mf("mf_6", 7, 1)
-
-    fis.plot_membership_functions()
 
 
 if __name__=="__main__":
