@@ -13,18 +13,6 @@ class FuzzyInferenceSystem:
         # self.output_membership_function = []
         self.rules = []
 
-    # def __init__(self, name :str, domain_start :float, domain_end :float, domain_step :float) -> None: 
-    #     self.membership_functions = {}
-    #     self.domains = {}
-
-    #     self.name = name
-    #     self.domain_start = domain_start
-    #     self.domain_end = domain_end
-    #     self.domain_step = domain_step
-
-    #     self.domain = np.arange(domain_start, domain_end, domain_step)
-        # self.domain = [x for x in range(domain_start, domain_end, domain_step)]
-
     # Domains
     # ----------------------------------------------------------------------
     def create_domain(self, name: str, domain_start :float, domain_end :float, domain_step :float) -> None:
