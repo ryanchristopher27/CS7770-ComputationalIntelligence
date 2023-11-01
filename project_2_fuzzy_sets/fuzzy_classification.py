@@ -22,8 +22,8 @@ def iris_classification() -> None:
                         "Virginica": 2}
     
     # Plot Iris Data
-    # plot_iris_data(iris)
-    # plot_iris_data_specific(iris, 3, 2)
+    plot_iris_data(iris)
+    plot_iris_data_specific(iris, 3, 2)
             
     fis = FuzzyInferenceSystem()
 
@@ -36,13 +36,13 @@ def iris_classification() -> None:
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
     fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
     fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
-    # fis.plot_membership_functions("PW")
+    fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
     fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
     fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
-    # fis.plot_membership_functions("PL")
+    fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
     fis.create_trapezoid_mf("Output", "Setosa", 0, 10, 30, 40, "o")

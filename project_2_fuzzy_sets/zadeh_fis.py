@@ -48,6 +48,7 @@ class Zadeh_FIS:
         relational_matrix = self.cylindrical_projection(consequent_set, antecedent_matrix, vector_lengths)
 
         # Set Relation
+        print(relational_matrix)
         self.rules[name].set_relation(relational_matrix)
         
     
@@ -59,7 +60,7 @@ class Zadeh_FIS:
         else:
             lengths = []
             for i in range(len(antecedents)):
-                lengths.append(len(self.fuzzy_sets[antecedents[i].get_fuzzy_set()]))
+                lengths.append(len(self.fuzzy_sets[antecedents[i]].get_fuzzy_set()))
             antecedent_matrix = np.zeros(lengths, dtype=float)
 
             if num_antecedents == 2:
@@ -88,7 +89,7 @@ class Zadeh_FIS:
                     # projected_matrix[i][j] = min(ant, cons)
         elif len(vector_lengths) - 1 == 2:
             for i in range(vector_lengths[0]):
-                for j in (vector_lengths[1]):
+                for j in range(vector_lengths[1]):
                     for k, cons in enumerate(consequent):
                         projected_matrix[i][j][k] = self.perform_implication_operator([antecedent_matrix[i][j]], cons, "Cyl_Proj")
                         # projected_matrix[i][j][k] = min(antecedent_matrix[i][j], cons)
@@ -146,7 +147,7 @@ class Zadeh_FIS:
             #///////////////////////////////////////////////////////////////////////////
         except:
             print("Antecedent Order / Sizes are not congruent with relational matrix")
-            
+
         consequent_domain = self.fuzzy_sets[self.rules[rule].get_consequent()].get_domain()
         # Create new Zadeh Inference for consequent domain
         if consequent_domain not in self.inferences:
@@ -184,12 +185,12 @@ class Zadeh_FIS:
     def perform_implication_operator(self, antecedents :[], consequent :float, step :str) -> float:
         if self.implication_operator == "Lukasiewicz":
             if step == "Combine":
-                result = sum(antecedents)
+                result = min(antecedents)
             else:
                 result = np.minimum(1, (1.0 - sum(antecedents) + consequent))
         elif self.implication_operator == "Correlation_Min":
             if step == "Combine":
-                result = np.minimum(antecedents)
+                result = max(antecedents)
             else:
                 result = np.minimum(antecedents, consequent)
         elif self.implication_operator == "Correlation_Product":
