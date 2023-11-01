@@ -114,15 +114,39 @@ class Zadeh_FIS:
         inferred_matrix = np.zeros(relational_matrix.shape, dtype=float)
 
         output_set = np.zeros(len(self.fuzzy_sets[self.rules[rule].get_consequent()].get_fuzzy_set()), dtype=float)
+        try:
+            if num_antecedents == 1:
+                for i, row in enumerate(relational_matrix):
+                    for j, val in enumerate(row):
+                        inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[i])
 
-        if num_antecedents == 1:
-            for i, row in enumerate(relational_matrix):
-                for j, val in enumerate(row):
-                    inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[i])
+                for k, col in enumerate(zip(*inferred_matrix)):
+                    output_set[k] = max(col)
 
-            for k, col in enumerate(zip(*inferred_matrix)):
-                output_set[k] = max(col)
+            # CHECK SUPPORT FOR 2 AND 3 ANTECEDENTS
+            #///////////////////////////////////////////////////////////////////////////
+            elif num_antecedents == 2:
+                for i, matrix in enumerate(relational_matrix):
+                    for j, row in enumerate(matrix):
+                        for k, val in enumerate(row):
+                            inferred_matrix[i][j][k] = np.minimum(val, antecedent_matrix[i][j])
 
+                for l, plane in enumerate(zip(*inferred_matrix)):
+                    output_set[l] = max(plane)
+                
+            elif num_antecedents == 3:
+                for i, matrix_3d in enumerate(relational_matrix):
+                    for j, matrix in enumerate(matrix_3d):
+                        for k, row in enumerate(matrix):
+                            for l, val in enumerate(row):
+                                inferred_matrix[i][j][k][l] = np.minimum(val, antecedent_matrix[i][j][k])
+
+                for m, cube in enumerate(zip(*inferred_matrix)):
+                    output_set[m] = max(cube)
+            #///////////////////////////////////////////////////////////////////////////
+        except:
+            print("Antecedent Order / Sizes are not congruent with relational matrix")
+            
         consequent_domain = self.fuzzy_sets[self.rules[rule].get_consequent()].get_domain()
         # Create new Zadeh Inference for consequent domain
         if consequent_domain not in self.inferences:
