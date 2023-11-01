@@ -79,27 +79,39 @@ class Zadeh_FIS:
         
     # Step 2 - Cylindrical Projection onto consequent
     def cylindrical_projection(self, consequent :[], antecedent_matrix :[], vector_lengths :[]) -> []:
-        vector_lengths.append(len(consequent))
-        projected_matrix = np.zeros(vector_lengths, dtype=float)
+        # vector_lengths.append(len(consequent))
+        lengths = [len(consequent)] + vector_lengths
+        projected_matrix = np.zeros(lengths, dtype=float)
 
-        if len(vector_lengths) - 1 == 1:
+        if len(lengths) - 1 == 1:
             for i, ant in enumerate(antecedent_matrix):
                 for j, cons in enumerate(consequent):
                     projected_matrix[i][j] = self.perform_implication_operator([ant], cons, "Cyl_Proj")
                     # projected_matrix[i][j] = min(ant, cons)
-        elif len(vector_lengths) - 1 == 2:
-            for i in range(vector_lengths[0]):
-                for j in range(vector_lengths[1]):
-                    for k, cons in enumerate(consequent):
-                        projected_matrix[i][j][k] = self.perform_implication_operator([antecedent_matrix[i][j]], cons, "Cyl_Proj")
+        elif len(lengths) - 1 == 2:
+            for i, cons in enumerate(consequent):
+                for j in range(lengths[1]):
+                    for k in range(lengths[2]):
+                        projected_matrix[i][j][k] = self.perform_implication_operator([antecedent_matrix[j][k]], cons, "Cyl_Proj")
                         # projected_matrix[i][j][k] = min(antecedent_matrix[i][j], cons)
-        elif len(vector_lengths) - 1 == 3:
-            for i in range(vector_lengths[0]):
-                for j in (vector_lengths[1]):
-                    for k in (vector_lengths[2]):
-                        for l, cons in enumerate(consequent):
-                            projected_matrix[i][j][k][l] = self.perform_implication_operator([antecedent_matrix[i][j][k]], cons, "Cyl_Proj")
+            # for i in range(vector_lengths[0]):
+            #     for j in range(vector_lengths[1]):
+            #         for k, cons in enumerate(consequent):
+            #             projected_matrix[i][j][k] = self.perform_implication_operator([antecedent_matrix[i][j]], cons, "Cyl_Proj")
+            #             # projected_matrix[i][j][k] = min(antecedent_matrix[i][j], cons)
+        elif len(lengths) - 1 == 3:
+            for i, cons in enumerate(consequent):
+                for j in range(lengths[1]):
+                    for k in range(lengths[2]):
+                        for l in range(lengths[3]):
+                            projected_matrix[i][j][k][l] = self.perform_implication_operator([antecedent_matrix[j][k][l]], cons, "Cyl_Proj")
                             # projected_matrix[i][j][k][l] = min(antecedent_matrix[i][j][k], cons)
+            # for i in range(lengths[0]):
+            #     for j in (lengths[1]):
+            #         for k in (lengths[2]):
+            #             for l, cons in enumerate(consequent):
+            #                 projected_matrix[i][j][k][l] = self.perform_implication_operator([antecedent_matrix[i][j][k]], cons, "Cyl_Proj")
+            #                 # projected_matrix[i][j][k][l] = min(antecedent_matrix[i][j][k], cons)
 
         return projected_matrix
 
@@ -119,7 +131,7 @@ class Zadeh_FIS:
             if num_antecedents == 1:
                 for i, row in enumerate(relational_matrix):
                     for j, val in enumerate(row):
-                        inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[i])
+                        inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[j])
 
                 for k, col in enumerate(zip(*inferred_matrix)):
                     output_set[k] = max(col)
@@ -130,20 +142,24 @@ class Zadeh_FIS:
                 for i, matrix in enumerate(relational_matrix):
                     for j, row in enumerate(matrix):
                         for k, val in enumerate(row):
-                            inferred_matrix[i][j][k] = np.minimum(val, antecedent_matrix[i][j])
+                            inferred_matrix[i][j][k] = np.minimum(val, antecedent_matrix[j][k])
 
-                for l, plane in enumerate(zip(*inferred_matrix)):
-                    output_set[l] = max(plane)
+                print(inferred_matrix)
+
+                for l, plane in enumerate(inferred_matrix):
+                    output_set[l] = np.matrix(plane).max()
+                    # output_set[l] = max(plane)
                 
             elif num_antecedents == 3:
                 for i, matrix_3d in enumerate(relational_matrix):
                     for j, matrix in enumerate(matrix_3d):
                         for k, row in enumerate(matrix):
                             for l, val in enumerate(row):
-                                inferred_matrix[i][j][k][l] = np.minimum(val, antecedent_matrix[i][j][k])
+                                inferred_matrix[i][j][k][l] = np.minimum(val, antecedent_matrix[j][k][l])
 
-                for m, cube in enumerate(zip(*inferred_matrix)):
-                    output_set[m] = max(cube)
+                for m, cube in enumerate(inferred_matrix):
+                    output_set[m] = np.matrix(cube).max()
+                    # output_set[m] = max(cube)
             #///////////////////////////////////////////////////////////////////////////
         except:
             print("Antecedent Order / Sizes are not congruent with relational matrix")
