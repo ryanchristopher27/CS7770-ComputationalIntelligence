@@ -70,7 +70,7 @@ class Zadeh_FIS:
         
             return antecedent_matrix, lengths
         
-    # Step 2 - Cylindrical Projection onto coincident
+    # Step 2 - Cylindrical Projection onto consequent
     def cylindrical_projection(self, consequent :[], antecedent_matrix :[], vector_lengths :[]) -> []:
         vector_lengths.append(len(consequent))
         projected_matrix = np.zeros(vector_lengths, dtype=float)
@@ -93,25 +93,19 @@ class Zadeh_FIS:
 
         return projected_matrix
 
-    # Plots
-    # ----------------------------------------------------------------------
-    def plot_membership_functions(self, domain :str) -> None:
-        plt.figure(figsize=(8, 5))
-        colors = ['skyblue', 'red', 'green', 'yellow', 'orange']
-        color_i = 0
-        for mf in self.membership_functions:
-            if domain in mf:
-                plt.plot(self.domains[domain], self.membership_functions[mf], 'k')
-                plt.fill_between(self.domains[domain], self.membership_functions[mf], color=colors[color_i], alpha=0.4)
-                color_i += 1
-
-        plt.title(f"{domain} Plot")
-        plt.ylabel('Fuzzy membership')
-        plt.xlabel('The domain of interest')
-        plt.ylim(-0.1, 1.1)
-        plt.show()
     
 
     # Helpers
     # ----------------------------------------------------------------------
-    # def perform_implication_operator()
+    def perform_implication_operator(self, antecedents :[], consequent :float) -> float:
+        if self.implication_operator == "Lukasiewicz":
+            result = np.minimum(1, (1.0 - sum(antecedents) + consequent))
+        elif self.implication_operator == "Correlation_Min":
+            result = np.minimum(antecedents, consequent)
+        elif self.implication_operator == "Correlation_Product":
+            result = np.prod(antecedents) * consequent
+        else:
+            print(f'{self.implication_operator} Implication Operator is not supported.')
+            exit(0)
+
+        return result
