@@ -140,8 +140,6 @@ class Zadeh_FIS:
                 for k, col in enumerate(zip(*inferred_matrix)):
                     output_set[k] = max(col)
 
-            # CHECK SUPPORT FOR 2 AND 3 ANTECEDENTS
-            #///////////////////////////////////////////////////////////////////////////
             elif num_antecedents == 2:
                 for i, matrix in enumerate(relational_matrix):
                     for j, row in enumerate(matrix):
@@ -164,7 +162,6 @@ class Zadeh_FIS:
                 for m, cube in enumerate(inferred_matrix):
                     # output_set[m] = np.matrix(cube).max()
                     output_set[m] = np.max(cube)
-            #///////////////////////////////////////////////////////////////////////////
         except:
             print("Antecedent Order / Sizes are not congruent with relational matrix")
 
