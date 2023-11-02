@@ -18,8 +18,8 @@ def zadeh_application() -> None:
 
     # Set Implication Operator
         # Lukasiewicz, Correlation_Min, Correlation_Product
-    # fis.set_implication_operator("Lukasiewicz")
-    fis.set_implication_operator("Correlation_Min")
+    fis.set_implication_operator("Lukasiewicz")
+    # fis.set_implication_operator("Correlation_Min")
     # fis.set_implication_operator("Correlation_Product")
 
     # Create Domains
@@ -33,18 +33,18 @@ def zadeh_application() -> None:
     Large = [0.0, 0.0, 0.8, 1.0]
     Large_2 = [0.0, 0.6, 1.0]
     Y_Out = [0.0, 0.5, 1.0]
+    Not_Small = [0.0, 0.2, 1.0, 1.0]
     fis.create_fuzzy_set(name="Small", domain_involved="X", fuzzy_set=Small)
     fis.create_fuzzy_set(name="Medium", domain_involved="Y", fuzzy_set=Medium)
     fis.create_fuzzy_set(name="Large", domain_involved="X", fuzzy_set=Large)
     fis.create_fuzzy_set(name="Large_2", domain_involved="A", fuzzy_set=Large_2)
     fis.create_fuzzy_set(name="Y_Out", domain_involved="A", fuzzy_set=Y_Out)
+    fis.create_fuzzy_set(name="Not Small", domain_involved="X", fuzzy_set=Not_Small)
 
     # Create Rules
     # fis.create_rule(name='R1', antecedents=['Small'], consequent='Medium')
     fis.create_rule(name='R2', antecedents=['Small', 'Large_2'], consequent='Y_Out')
 
-    Not_Small = [0.0, 0.2, 1.0, 1.0]
-    fis.create_fuzzy_set(name="Not Small", domain_involved="X", fuzzy_set=Not_Small)
     # Evaluate
     # fis.evaluate_zadeh(rule='R1', antecedents=['Small'])
     # fis.evaluate_zadeh(rule='R1', antecedents=['Not Small'])

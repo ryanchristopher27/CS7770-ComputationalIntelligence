@@ -80,7 +80,11 @@ class Zadeh_FIS:
     # Step 2 - Cylindrical Projection onto consequent
     def cylindrical_projection(self, consequent :[], antecedent_matrix :[], vector_lengths :[]) -> []:
         # vector_lengths.append(len(consequent))
-        lengths = [len(consequent)] + vector_lengths
+        if len(vector_lengths) == 1:
+            lengths = vector_lengths + [len(consequent)]
+        else:
+            lengths = [len(consequent)] + vector_lengths
+
         projected_matrix = np.zeros(lengths, dtype=float)
 
         if len(lengths) - 1 == 1:
@@ -131,7 +135,7 @@ class Zadeh_FIS:
             if num_antecedents == 1:
                 for i, row in enumerate(relational_matrix):
                     for j, val in enumerate(row):
-                        inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[j])
+                        inferred_matrix[i][j] = np.minimum(val, antecedent_matrix[i])
 
                 for k, col in enumerate(zip(*inferred_matrix)):
                     output_set[k] = max(col)
