@@ -162,8 +162,8 @@ class Zadeh_FIS:
                                 inferred_matrix[i][j][k][l] = np.minimum(val, antecedent_matrix[j][k][l])
 
                 for m, cube in enumerate(inferred_matrix):
-                    output_set[m] = np.matrix(cube).max()
-                    # output_set[m] = max(cube)
+                    # output_set[m] = np.matrix(cube).max()
+                    output_set[m] = np.max(cube)
             #///////////////////////////////////////////////////////////////////////////
         except:
             print("Antecedent Order / Sizes are not congruent with relational matrix")
@@ -210,7 +210,7 @@ class Zadeh_FIS:
                 result = np.minimum(1, (1.0 - sum(antecedents) + consequent))
         elif self.implication_operator == "Correlation_Min":
             if step == "Combine":
-                result = max(antecedents)
+                result = min(antecedents)
             else:
                 result = np.minimum(antecedents, consequent)
         elif self.implication_operator == "Correlation_Product":
