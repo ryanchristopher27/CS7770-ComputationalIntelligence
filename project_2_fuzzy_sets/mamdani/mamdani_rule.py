@@ -1,5 +1,5 @@
 
-class Rule:
+class Mamdani_Rule:
 
     def __init__(self, name :str, input_mfs :[], output_mf :str):
         self.name = name
