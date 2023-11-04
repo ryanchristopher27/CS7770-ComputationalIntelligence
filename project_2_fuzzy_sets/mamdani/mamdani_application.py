@@ -116,25 +116,25 @@ def iris_classification_multiple_output_domains() -> None:
     fis = FuzzyInferenceSystem()
 
     # Add domains
-    fis.create_domain("PW", 0, 3, 0.1)
-    fis.create_domain("PL", 0, 8, 0.1)
+    fis.create_domain("PW", 0, 3, 0.1, "i")
+    fis.create_domain("PL", 0, 8, 0.1, "i")
     # fis.create_domain("Output", 0, 100, 1)
-    fis.create_domain("Setosa", 0, 100, 1)
-    fis.create_domain("Versicolor", 0, 100, 1)
-    fis.create_domain("Virginica", 0, 100, 1)
+    fis.create_domain("Setosa", 0, 100, 1, "o")
+    fis.create_domain("Versicolor", 0, 100, 1, "o")
+    fis.create_domain("Virginica", 0, 100, 1, "o")
 
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
     fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
     fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
-    fis.plot_membership_functions("PW")
+    # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
     fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
     fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
-    fis.plot_membership_functions("PL")
+    # fis.plot_membership_functions("PL")
 
     # Create Output Membership Functions
     fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
@@ -182,6 +182,8 @@ def iris_classification_multiple_output_domains() -> None:
         evaluations.append(fis.evaluate_mamdani(data))
     
     iris_classification = fis.defuzzification_mamdani(evaluations)
+
+    iris_classification = [class_dictionary[x] for x in iris_classification]
 
     correct = 0
     # Compare labels to classification

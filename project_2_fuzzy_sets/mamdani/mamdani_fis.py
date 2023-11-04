@@ -10,17 +10,25 @@ class FuzzyInferenceSystem:
     def __init__(self):
         self.membership_functions = {}
         self.domains = {}
-        self.domain_steps = {}
+        self.input_domains = {}
+        self.output_domains = {}
+        self.input_domain_steps = {}
+        self.output_domain_steps = {}
         self.output_membership_functions = {}
         # self.output_membership_function = []
-        self.rules = []
+        self.rules = {}
 
     # Domains
     # ----------------------------------------------------------------------
-    def create_domain(self, name: str, domain_start :float, domain_end :float, domain_step :float) -> None:
+    def create_domain(self, name: str, domain_start :float, domain_end :float, domain_step :float, i_o :str) -> None:
         domain = np.arange(domain_start, domain_end, domain_step)
         self.domains[name] = domain
-        self.domain_steps[name] = domain_step
+        if i_o != "o":
+            self.input_domains[name] = domain
+            self.input_domain_steps[name] = domain_step
+        else:
+            self.output_domains[name] = domain
+            self.output_domain_steps[name] = domain_step
 
     # Membership Functions
     # ----------------------------------------------------------------------
@@ -75,13 +83,14 @@ class FuzzyInferenceSystem:
     # Rules
     # ----------------------------------------------------------------------
     def create_rule(self, name :str, input_mfs :[str], output_mf :str) -> None:
-        self.rules.append(Mamdani_Rule(name, input_mfs, output_mf))
+        self.rules[name] = Mamdani_Rule(name, input_mfs, output_mf)
+        # self.rules.append(Mamdani_Rule(name, input_mfs, output_mf))
         
     # Evalutation
     # ----------------------------------------------------------------------
     def evaluate_mamdani(self, data :{}) -> {}:
         evaluation = {}
-        for rule in self.rules:
+        for rule_name, rule in self.rules.items():
             min_val = 1
             for mf in rule.get_input_mfs():
                 
@@ -102,21 +111,29 @@ class FuzzyInferenceSystem:
     def defuzzification_mamdani(self, evals :[]) -> []:
         classification = []
         domain_combos = {}
-        for i, rules in enumerate(evals):
-            for domain in self.domains:
-                domain_combos[domain] = combo = [0 for x in range(len(self.domains["Output"]))]
+        for i, data_rules in enumerate(evals):
+            for domain in self.output_domains:
+                domain_combos[domain] = [0 for x in range(len(self.output_domains[domain]))]
             # combo = [0 for x in range(len(self.domains["Output"]))]
 
-            for key in rules:
-                output_domain = self.membership_functions[self.rules[key].get_output_mf()].get_domain()
-                domain_combos[output_domain] = np.add(domain_combos[output_domain], rules[key])
+            for key in data_rules:
+                output_domain = self.output_membership_functions[self.rules[key].get_output_mf()].get_domain()
+                domain_combos[output_domain] = np.add(domain_combos[output_domain], data_rules[key])
                 # combo = np.add(combo, rules[key])
 
             # if sum(combo) == 0:
             #     print('check')
 
-            cl = classify_iris(self.centroid_calc(combo))
-            classification.append(cl)
+            best = (0, "")
+            for dc in domain_combos:
+                centroid = self.centroid_calc(domain_combos[dc], dc)
+                if centroid > best[0]:
+                    best = (centroid, dc)
+
+            if len(domain_combos) == 1:
+                classification.append(classify_iris(best[0]))
+            else:
+                classification.append(best[1])
 
         return classification
 
@@ -148,26 +165,26 @@ class FuzzyInferenceSystem:
                 val = data[key]
 
 
-        return int(val * self.domain_steps[self.membership_functions[mf].get_domain()] * 100)
+        return int(val * self.input_domain_steps[self.membership_functions[mf].get_domain()] * 100)
         # return int(val * 10)
     
-    def centroid_calc(self, combo :[]) -> float:
+    def centroid_calc(self, combo :[], domain :str) -> float:
         # mult = np.dot(combo, self.domains["Output"])
         # numerator = sum(np.dot(combo, self.domains["Output"]))
-        numerator = sum([combo[i] * x for i, x in enumerate(self.domains["Output"])])
+        numerator = sum([combo[i] * x for i, x in enumerate(self.domains[domain])])
         denominator = sum(combo)
 
-        # if denominator == 0:
-        #     return float(0)
+        if denominator == 0:
+            return float(0)
         
         centroid = numerator/denominator
 
         return centroid
     
-def classify_iris(val :float) -> int:
+def classify_iris(val :float) -> str:
     if val <= 33.3:
-        return 0
+        return "Setosa"
     elif val > 33.3 and val <= 66.6:
-        return 1
+        return "Versicolor"
     else:
-        return 2
+        return "Virginica"
