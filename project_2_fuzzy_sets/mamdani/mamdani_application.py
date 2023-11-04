@@ -29,9 +29,9 @@ def iris_classification() -> None:
     fis = FuzzyInferenceSystem()
 
     # Add domains
-    fis.create_domain("PW", 0, 3, 0.1)
-    fis.create_domain("PL", 0, 8, 0.1)
-    fis.create_domain("Output", 0, 100, 1)
+    fis.create_domain("PW", 0, 3, 0.1, "i")
+    fis.create_domain("PL", 0, 8, 0.1, "i")
+    fis.create_domain("Output", 0, 100, 1, "o")
 
     # Create Petal Width Membership Functions
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
@@ -82,6 +82,7 @@ def iris_classification() -> None:
         evaluations.append(fis.evaluate_mamdani(data))
     
     iris_classification = fis.defuzzification_mamdani(evaluations)
+    iris_classification = [class_dictionary[x] for x in iris_classification]
 
     correct = 0
     # Compare labels to classification
@@ -111,13 +112,17 @@ def iris_classification_multiple_output_domains() -> None:
     
     # Plot Iris Data
     # plot_iris_data(iris)
-    # plot_iris_data_specific(iris, 3, 2)
+    plot_iris_data_specific(iris, 0, 1)
+    plot_iris_data_specific(iris, 2, 3)
+
             
     fis = FuzzyInferenceSystem()
 
     # Add domains
     fis.create_domain("PW", 0, 3, 0.1, "i")
     fis.create_domain("PL", 0, 8, 0.1, "i")
+    fis.create_domain("SW", 0, 5, 0.1, "i") 
+    fis.create_domain("SL", 0, 9, 0.1, "i")
     # fis.create_domain("Output", 0, 100, 1)
     fis.create_domain("Setosa", 0, 100, 1, "o")
     fis.create_domain("Versicolor", 0, 100, 1, "o")
@@ -125,16 +130,26 @@ def iris_classification_multiple_output_domains() -> None:
 
 
     # Create Petal Width Membership Functions
-    fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
-    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
-    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
+    fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i") # Setosa
+    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i") # Versicolor
+    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i") # Virginica
     # fis.plot_membership_functions("PW")
 
     # Create Petal Length Membership Functions
-    fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
-    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
+    fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i") # Setosa
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.9, 5, "i") # Versicolor
+    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i") # Virginica
     # fis.plot_membership_functions("PL")
+
+    # Create Sepal Width Membership Functions
+    fis.create_trapezoid_mf("SW", "SW_Low", 0, 1.8, 3.5, 3.6, "i") # Versicolor
+    fis.create_trapezoid_mf("SW", "SW_Mid", 2.2, 2.5, 3.5, 3.8, "i") # Virginica
+    fis.create_trapezoid_mf("SW", "SW_High", 2.3, 3.0, 4.4, 4.5, "i") # Setosa
+
+    # Create Sepal Length Membership Functions
+    fis.create_trapezoid_mf("SL", "SL_Low", 4.0, 4.2, 5.7, 5.9, "i") # Setosa
+    fis.create_trapezoid_mf("SL", "SL_Mid", 4.8, 5.0, 6.8, 7.1, "i") # Versicolor
+    fis.create_trapezoid_mf("SL", "SL_High", 4.8, 5.6, 7.8, 8, "i") # Virginica
 
     # Create Output Membership Functions
     fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
@@ -146,31 +161,41 @@ def iris_classification_multiple_output_domains() -> None:
     fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 90, 100, "o")
-
              
-    # Rules
-    # ------------------------------
-        # 1) If Petal Width Low
-        #    And Petal Length Low
-                # Setosa
-        # 2) If Petal Length Mid
-        #    Petal Width Mid
-                # Versicolor
-        # 3) If Petal Length High
-        #    Petal Width Hight
-                # Virginica
+    # Create Rule Sets
 
-    # Create Rules
+    # Rule Set 1: 97.33 %
+        # Only Petal Length and Width
+    # fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
+    # fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor_High")
+    # fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica_High")
+    # fis.create_rule("Rule4", ["PW_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule5", ["PL_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule6", ["PW_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule7", ["PL_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
+    # fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
+
+
+    # Rule Set 2:
     fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
     fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor_High")
     fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica_High")
     fis.create_rule("Rule4", ["PW_Low"], "Setosa_Mid")
     fis.create_rule("Rule5", ["PL_Low"], "Setosa_Mid")
-    fis.create_rule("Rule6", ["PW_Mid"], "Versicolor_Mid")
-    fis.create_rule("Rule7", ["PL_Mid"], "Versicolor_Mid")
-    fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
-    fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
+    fis.create_rule("Rule6", ["PW_Mid"], "Virginica_Low")
+    fis.create_rule("Rule7", ["PL_Mid"], "Virginica_Low")
+    fis.create_rule("Rule8", ["PW_High"], "Versicolor_Low")
+    fis.create_rule("Rule9", ["PL_High"], "Versicolor_Low")
+    fis.create_rule("Rule10", ['SW_Low'], "Virginica_Low")
+    fis.create_rule("Rule11", ['SW_Mid'], "Versicolor_Low")
+    fis.create_rule("Rule14", ['SL_Mid'], "Virginica_Low")
+    fis.create_rule("Rule15", ['SL_High'], "Versicolor_Low")
+    # fis.create_rule("Rule16", ['SW_High', 'SL_Low'], "Setosa_Mid")
+    fis.create_rule("Rule17", ['SW_Low', 'SW_Mid'], "Versicolor_Mid")
+    fis.create_rule("Rule18", ['SW_Mid', 'SW_High'], "Virginica_Mid")
     
+
     # Iris Evaluation
     X = iris.data
     Y = iris.target
@@ -186,14 +211,18 @@ def iris_classification_multiple_output_domains() -> None:
     iris_classification = [class_dictionary[x] for x in iris_classification]
 
     correct = 0
+    wrong_indices = []
     # Compare labels to classification
     for i in range(X.shape[0]):
         if Y[i] == iris_classification[i]:
             correct += 1
+        else:
+            wrong_indices.append(i)
     
     accuracy = correct / 150 * 100
 
     print(f"Accuracy: {accuracy}%")
+    print(f'Wrong Indices: {wrong_indices}')
 
     plot_confusion_matrix(Y, iris_classification)
 
