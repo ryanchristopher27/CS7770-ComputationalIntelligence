@@ -4,11 +4,12 @@ from sklearn import datasets, metrics
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+import os
 
 def main():
-    numeric_example()
+    # numeric_example()
     # iris_classification()
-    # iris_classification_multiple_output_domains()
+    iris_classification_multiple_output_domains()
 
 
 def numeric_example() -> None:
@@ -57,8 +58,8 @@ def iris_classification() -> None:
                         "Virginica": 2}
     
     # Plot Iris Data
-    # plot_iris_data(iris)
-    plot_iris_data_specific(iris, 3, 2)
+    # plot_iris_data(iris, True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/iris_data.png")
+    # plot_iris_data_specific(iris, 2, 3, True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/iris_data_pw_pl.png")
             
     fis = FuzzyInferenceSystem()
     fis.set_aggregation_method("Sum")
@@ -73,18 +74,19 @@ def iris_classification() -> None:
     fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
     fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
     fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
-    # fis.plot_membership_functions("PW")
+    # fis.plot_membership_functions("PW", True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/petal_width_mfs.png")
 
     # Create Petal Length Membership Functions
     fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
     fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
     fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
-    # fis.plot_membership_functions("PL")
+    # fis.plot_membership_functions("PL", True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/petal_length_mfs.png")
 
     # Create Output Membership Functions
     fis.create_trapezoid_mf("Output", "Setosa", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Output", "Versicolor", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Output", "Virginica", 60, 70, 90, 100, "o")
+    # fis.plot_membership_functions("Output", True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/output_mfs.png")
              
     # Rules
     # ------------------------------
@@ -130,7 +132,7 @@ def iris_classification() -> None:
 
     print(f"Accuracy: {accuracy}%")
 
-    plot_confusion_matrix(Y, iris_classification)
+    # plot_confusion_matrix(Y, iris_classification, True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/confusion_matrix.png")
 
 
 # Iris Classification With Multiple Output Domains
@@ -148,8 +150,8 @@ def iris_classification_multiple_output_domains() -> None:
     
     # Plot Iris Data
     # plot_iris_data(iris)
-    plot_iris_data_specific(iris, 0, 1)
-    plot_iris_data_specific(iris, 2, 3)
+    # plot_iris_data_specific(iris, 0, 1)
+    # plot_iris_data_specific(iris, 2, 3)
 
             
     fis = FuzzyInferenceSystem()
@@ -168,37 +170,61 @@ def iris_classification_multiple_output_domains() -> None:
 
 
     # Create Petal Width Membership Functions
-    fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i") # Setosa
-    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i") # Versicolor
-    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i") # Virginica
-    # fis.plot_membership_functions("PW")
+    fis.create_trapezoid_mf("PW", "PW_Low", 0, 0, 0.8, 1, "i")
+    fis.create_trapezoid_mf("PW", "PW_Mid", 0.8, 0.9, 1.4, 1.7, "i")
+    fis.create_trapezoid_mf("PW", "PW_High", 1.1, 1.4, 2.8, 3, "i")
+    # fis.plot_membership_functions("PW", True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/petal_width_mfs.png")
 
     # Create Petal Length Membership Functions
-    fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i") # Setosa
-    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.9, 5, "i") # Versicolor
-    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i") # Virginica
-    # fis.plot_membership_functions("PL")
+    fis.create_trapezoid_mf("PL", "PL_Low", 0, 0, 2.3, 2.5, "i")
+    fis.create_trapezoid_mf("PL", "PL_Mid", 2.5, 2.7, 4.8, 5, "i")
+    fis.create_trapezoid_mf("PL", "PL_High", 4.8, 5, 8, 8, "i")
+    # fis.plot_membership_functions("PL", True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/petal_length_mfs.png")
 
     # Create Sepal Width Membership Functions
     fis.create_trapezoid_mf("SW", "SW_Low", 0, 1.8, 3.5, 3.6, "i") # Versicolor
     fis.create_trapezoid_mf("SW", "SW_Mid", 2.2, 2.5, 3.5, 3.8, "i") # Virginica
     fis.create_trapezoid_mf("SW", "SW_High", 2.3, 3.0, 4.4, 4.5, "i") # Setosa
+    # fis.plot_membership_functions("SW", True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/sepal_width_mfs.png")
 
     # Create Sepal Length Membership Functions
     fis.create_trapezoid_mf("SL", "SL_Low", 4.0, 4.2, 5.7, 5.9, "i") # Setosa
     fis.create_trapezoid_mf("SL", "SL_Mid", 4.8, 5.0, 6.8, 7.1, "i") # Versicolor
     fis.create_trapezoid_mf("SL", "SL_High", 4.8, 5.6, 7.8, 8, "i") # Virginica
+    # fis.plot_membership_functions("SL", True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/sepal_length_mfs.png")
 
     # Create Output Membership Functions
     fis.create_trapezoid_mf("Setosa", "Setosa_Low", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Setosa", "Setosa_Mid", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Setosa", "Setosa_High", 60, 70, 90, 100, "o")
+    # fis.plot_membership_functions("Setosa", True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/setosa_mfs.png")
     fis.create_trapezoid_mf("Versicolor", "Versicolor_Low", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Versicolor", "Versicolor_Mid", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Versicolor", "Versicolor_High", 60, 70, 90, 100, "o")
+    # fis.plot_membership_functions("Versicolor", True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/versicolor_mfs.png")
     fis.create_trapezoid_mf("Virginica", "Virginica_Low", 0, 10, 30, 40, "o")
     fis.create_trapezoid_mf("Virginica", "Virginica_Mid", 30, 40, 60, 70, "o")
     fis.create_trapezoid_mf("Virginica", "Virginica_High", 60, 70, 90, 100, "o")
+    # fis.plot_membership_functions("Virginica", True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/virginica_mfs.png")
+
+    # Create Specific Membership Functions for last four points
+    fis.create_triangle_mf("PW", "PW_P70", 1.7, 1.8, 1.9, "i")
+    fis.create_triangle_mf("PL", "PL_P70", 4.7, 4.8, 4.9, "i")
+    fis.create_triangle_mf("SW", "SW_P70", 3.1, 3.2, 3.3, "i")
+    fis.create_triangle_mf("SL", "SL_P70", 5.8, 5.9, 6.0, "i")
+    fis.create_triangle_mf("PW", "PW_P77", 1.6, 1.7, 1.8, "i")
+    fis.create_triangle_mf("PL", "PL_P77", 4.9, 5.0, 5.1, "i")
+    fis.create_triangle_mf("SW", "SW_P77", 2.9, 3.0, 3.1, "i")
+    fis.create_triangle_mf("SL", "SL_P77", 6.6, 6.7, 6.8, "i")
+    fis.create_triangle_mf("PW", "PW_P83", 1.5, 1.6, 1.7, "i")
+    fis.create_triangle_mf("PL", "PL_P83", 5.0, 5.1, 5.2, "i")
+    fis.create_triangle_mf("SW", "SW_P83", 2.6, 2.7, 2.8, "i")
+    fis.create_triangle_mf("SL", "SL_P83", 5.9, 6.0, 6.1, "i")
+    fis.create_triangle_mf("PW", "PW_P106", 1.6, 1.7, 1.8, "i")
+    fis.create_triangle_mf("PL", "PL_P106", 4.4, 4.5, 4.6, "i")
+    fis.create_triangle_mf("SW", "SW_P106", 2.4, 2.5, 2.6, "i")
+    fis.create_triangle_mf("SL", "SL_P106", 4.8, 4.9, 5.0, "i")
+
              
     # Create Rule Sets
 
@@ -214,25 +240,57 @@ def iris_classification_multiple_output_domains() -> None:
     # fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
     # fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
 
+    # Try 2
+    # fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
+    # fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor_High")
+    # fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica_High")
+    # fis.create_rule("Rule4", ["PW_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule5", ["PL_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule6", ["PW_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule7", ["PL_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
+    # fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
+    # fis.create_rule("Rule10", ["PW_Low", "PL_Low"], "Versicolor_Low")
+    # fis.create_rule("Rule11", ["PW_Low", "PL_Low"], "Virginica_Low")
+    # fis.create_rule("Rule12", ["PW_Mid", "PL_Mid"], "Setosa_Low")
+    # fis.create_rule("Rule13", ["PW_Mid", "PL_Mid"], "Virginica_Low")
+    # fis.create_rule("Rule14", ["PW_High", "PL_High"], "Setosa_Low")
+    # fis.create_rule("Rule15", ["PW_High", "PL_High"], "Versicolor_Low")
+    # fis.create_rule("Rule16", ['SW_High', 'SL_Low'], "Versicolor_Low") # Setosa
+    # fis.create_rule("Rule17", ['SW_High', 'SL_Low'], "Virginica_Low") # Setosa
+    # fis.create_rule("Rule18", ['SW_Low', 'SL_Mid'], "Setosa_Low") # Versicolor
+    # fis.create_rule("Rule19", ['SW_Low', 'SL_Mid'], "Virginica_Low") # Versicolor
+    # fis.create_rule("Rule20", ['SW_Mid', 'SL_High'], "Setosa_Low") # Virginica
+    # fis.create_rule("Rule21", ['SW_Mid', 'SL_High'], "Versicolor_Low") # Virginica
 
-    # Rule Set 2:
+    # Try 3
     fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
     fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor_High")
     fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica_High")
     fis.create_rule("Rule4", ["PW_Low"], "Setosa_Mid")
     fis.create_rule("Rule5", ["PL_Low"], "Setosa_Mid")
-    fis.create_rule("Rule6", ["PW_Mid"], "Virginica_Low")
-    fis.create_rule("Rule7", ["PL_Mid"], "Virginica_Low")
-    fis.create_rule("Rule8", ["PW_High"], "Versicolor_Low")
-    fis.create_rule("Rule9", ["PL_High"], "Versicolor_Low")
-    # fis.create_rule("Rule10", ['SW_Low'], "Virginica_Low")
-    # fis.create_rule("Rule11", ['SW_Mid'], "Versicolor_Low")
-    # fis.create_rule("Rule14", ['SL_Mid'], "Virginica_Low")
-    # fis.create_rule("Rule15", ['SL_High'], "Versicolor_Low")
-    # fis.create_rule("Rule16", ['SW_High', 'SL_Low'], "Setosa_Mid")
-    # fis.create_rule("Rule17", ['SW_Low', 'SW_Mid'], "Versicolor_Mid")
-    # fis.create_rule("Rule18", ['SW_Mid', 'SW_High'], "Virginica_Mid")
-    
+    fis.create_rule("Rule6", ["PW_Mid"], "Versicolor_Mid")
+    fis.create_rule("Rule7", ["PL_Mid"], "Versicolor_Mid")
+    fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
+    fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
+    fis.create_rule("Rule10", ["PW_Low", "PL_Low", "SW_High", "SL_Low"], "Setosa_High")
+    fis.create_rule("Rule11", ["PW_Mid", "PL_Mid", "SW_Low", "SL_Mid"], "Versicolor_High")
+    fis.create_rule("Rule12", ["PW_High", "PL_High", "SW_Mid", "SL_High"], "Virginica_High")
+
+    # Try 4 - Kind of Cheating
+    # fis.create_rule("Rule1", ["PW_Low", "PL_Low"], "Setosa_High")
+    # fis.create_rule("Rule2", ["PW_Mid", "PL_Mid"], "Versicolor_High")
+    # fis.create_rule("Rule3", ["PW_High", "PL_High"], "Virginica_High")
+    # fis.create_rule("Rule4", ["PW_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule5", ["PL_Low"], "Setosa_Mid")
+    # fis.create_rule("Rule6", ["PW_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule7", ["PL_Mid"], "Versicolor_Mid")
+    # fis.create_rule("Rule8", ["PW_High"], "Virginica_Mid")
+    # fis.create_rule("Rule9", ["PL_High"], "Virginica_Mid")
+    # fis.create_rule("Rule10", ["PW_P70", "PL_P70", "SW_P70", "SL_P70"], "Versicolor_High")
+    # fis.create_rule("Rule11", ["PW_P77", "PL_P77", "SW_P77", "SL_P77"], "Versicolor_High")
+    # fis.create_rule("Rule12", ["PW_P83", "PL_P83", "SW_P83", "SL_P83"], "Versicolor_High")
+    # fis.create_rule("Rule13", ["PW_P106", "PL_P106", "SW_P106", "SL_P106"], "Virginica_High")
 
     # Iris Evaluation
     X = iris.data
@@ -246,7 +304,7 @@ def iris_classification_multiple_output_domains() -> None:
     
     iris_classification = fis.defuzzification_mamdani(evaluations)
 
-    iris_classification = [class_dictionary[classify_iris(x[0])] for x in iris_classification]
+    iris_classification = [class_dictionary[x[1]] for x in iris_classification]
 
     correct = 0
     wrong_indices = []
@@ -262,7 +320,7 @@ def iris_classification_multiple_output_domains() -> None:
     print(f"Accuracy: {accuracy}%")
     print(f'Wrong Indices: {wrong_indices}')
 
-    plot_confusion_matrix(Y, iris_classification)
+    plot_confusion_matrix(Y, iris_classification, True, "project_2_fuzzy_sets/mamdani/plots/iris_multiple_output_domains/confusion_matrix.png")
 
 
 # Iris Helper Functions
@@ -277,7 +335,7 @@ def classify_iris(val :float) -> str:
 
 # Plotting Functions
 # -----------------------------------------------------------------------------------
-def plot_iris_data(iris) -> None:
+def plot_iris_data(iris, save :bool = False, save_path :str = "") -> None:
     features = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
     fig, axs = plt.subplots(4, 4, sharey=True, figsize=(10, 9))
     for i in range(4):
@@ -289,11 +347,14 @@ def plot_iris_data(iris) -> None:
             # plt.xticks(())
             # plt.yticks(())
             axs[i,j].set(xlabel=features[i], ylabel=features[j])
-            
+    
+    if save:
+        # os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        fig.savefig(save_path)
 
     plt.show()
 
-def plot_iris_data_specific(iris, x :int, y :int) -> None:
+def plot_iris_data_specific(iris, x :int, y :int, save :bool = False, save_path :str = "") -> None:
     features = ["sepal_length", "sepal_width", "petal_length", "petal_width"]
     legend = ["Setosa", "Versicolor", "Virginica"]
     X1 = iris.data[:,x]
@@ -309,13 +370,21 @@ def plot_iris_data_specific(iris, x :int, y :int) -> None:
     plt.xlabel(f'{features[x]}')
     plt.ylabel(f'{features[y]}')
     plt.legend(legend)
+
+    if save:
+        plt.savefig(save_path)
+
     plt.show()
 
-def plot_confusion_matrix(actual :[], predicted :[]) -> None:
+def plot_confusion_matrix(actual :[], predicted :[], save :bool = False, save_path :str = "") -> None:
     display_labels = ['Setosa', 'Versicolor', 'Virginica']
     confusion_matrix = metrics.confusion_matrix(actual, predicted)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = display_labels)
     cm_display.plot()
+
+    if save:
+        plt.savefig(save_path)
+
     plt.show() 
 
 def plot_evaluations(evaluations :{}, d_start :float, d_stop :float, d_step :float, domain :str, centroid :float, save :bool = False, save_path :str = "") -> None:
