@@ -9,6 +9,7 @@ class FuzzyInferenceSystem:
 
     def __init__(self):
         self.membership_functions = {}
+        self.input_membership_functions = {}
         self.domains = {}
         self.input_domains = {}
         self.output_domains = {}
@@ -17,6 +18,10 @@ class FuzzyInferenceSystem:
         self.output_membership_functions = {}
         # self.output_membership_function = []
         self.rules = {}
+        self.aggregation_method = "Sum"
+
+    def set_aggregation_method(self, aggregation_method :str) -> None:
+        self.aggregation_method = aggregation_method
 
     # Domains
     # ----------------------------------------------------------------------
@@ -57,10 +62,12 @@ class FuzzyInferenceSystem:
                 mf.append(0)
 
         if io != "o":
+            self.input_membership_functions[name] = Mamdani_MF(name, mf, domain)
             self.membership_functions[name] = Mamdani_MF(name, mf, domain)
-            # self.membership_functions[name] = mf
+            # self.input_membership_functions[name] = mf
         else:
             self.output_membership_functions[name] = Mamdani_MF(name, mf, domain)
+            self.membership_functions[name] = Mamdani_MF(name, mf, domain)
             # self.output_membership_functions[name] = mf
 
     def create_triangle_mf(self, domain: str, name :str, a :float, b :float, c :float, io :str) -> None:
@@ -74,10 +81,12 @@ class FuzzyInferenceSystem:
             mf.append(val)
 
         if io != "o":
+            self.input_membership_functions[name] = Mamdani_MF(name, mf, domain)
             self.membership_functions[name] = Mamdani_MF(name, mf, domain)
-            # self.membership_functions[name] = mf
+            # self.input_membership_functions[name] = mf
         else:
             self.output_membership_functions[name] = Mamdani_MF(name, mf, domain)
+            self.membership_functions[name] = Mamdani_MF(name, mf, domain)
             # self.output_membership_functions[name] = mf
 
     # Rules
@@ -94,17 +103,17 @@ class FuzzyInferenceSystem:
             min_val = 1
             for mf in rule.get_input_mfs():
                 
-                mf_val = self.membership_functions[mf].get_mf()[self.get_mf_index(mf, data)]
+                mf_val = self.input_membership_functions[mf].get_mf()[self.get_mf_index(mf, data)]
                 # Update Min
                 if mf_val < min_val:
                     min_val = mf_val
 
 
-            evaluation[rule.get_name()] = [min(x, min_val) for x in self.output_membership_functions[rule.get_output_mf()].get_mf()]
+            evaluation[rule_name] = [min(x, min_val) for x in self.output_membership_functions[rule.get_output_mf()].get_mf()]
             # evaluation[rule.get_name()] = [min(x, min_val) for x in self.output_membership_function]
 
-        # for key in self.membership_functions:
-        #     evaluation[key] = self.membership_functions[key][self.get_mf_index(x)]
+        # for key in self.input_membership_functions:
+        #     evaluation[key] = self.input_membership_functions[key][self.get_mf_index(x)]
 
         return evaluation
     
@@ -118,7 +127,13 @@ class FuzzyInferenceSystem:
 
             for key in data_rules:
                 output_domain = self.output_membership_functions[self.rules[key].get_output_mf()].get_domain()
-                domain_combos[output_domain] = np.add(domain_combos[output_domain], data_rules[key])
+                if self.aggregation_method == "Sum":
+                    domain_combos[output_domain] = np.add(domain_combos[output_domain], data_rules[key])
+                elif self.aggregation_method == "Max":
+                    domain_combos[output_domain] = np.maximum(domain_combos[output_domain], data_rules[key])
+                else:
+                    print(f'{self.aggregation_method} Aggregation Method is not supported.')
+                    exit(0)
                 # combo = np.add(combo, rules[key])
 
             # if sum(combo) == 0:
@@ -130,16 +145,14 @@ class FuzzyInferenceSystem:
                 if centroid > best[0]:
                     best = (centroid, dc)
 
-            if len(domain_combos) == 1:
-                classification.append(classify_iris(best[0]))
-            else:
-                classification.append(best[1])
+
+            classification.append(best)
 
         return classification
 
     # Plots
     # ----------------------------------------------------------------------
-    def plot_membership_functions(self, domain :str) -> None:
+    def plot_membership_functions(self, domain :str, save :bool = False, save_path :str = "") -> None:
         plt.figure(figsize=(8, 5))
         colors = ['skyblue', 'red', 'green', 'yellow', 'orange']
         color_i = 0
@@ -147,13 +160,18 @@ class FuzzyInferenceSystem:
             # if domain in mf:
             if domain == self.membership_functions[mf].get_domain():
                 plt.plot(self.domains[domain], self.membership_functions[mf].get_mf(), 'k')
-                plt.fill_between(self.domains[domain], self.membership_functions[mf].get_mf(), color=colors[color_i], alpha=0.4)
+                plt.fill_between(self.domains[domain], self.membership_functions[mf].get_mf(), color=colors[color_i], alpha=0.4, label=mf)
                 color_i += 1
 
+        plt.legend()
         plt.title(f"{domain} Plot")
         plt.ylabel('Fuzzy membership')
         plt.xlabel('The domain of interest')
         plt.ylim(-0.1, 1.1)
+
+        if save:
+            plt.savefig(save_path)
+
         plt.show()
     
 
@@ -161,7 +179,7 @@ class FuzzyInferenceSystem:
     # ----------------------------------------------------------------------
     def get_mf_index(self, mf :str, data :{}) -> int:
         for key in data:
-            if key in mf:
+            if key == self.membership_functions[mf].get_domain():
                 val = data[key]
 
 
@@ -181,10 +199,10 @@ class FuzzyInferenceSystem:
 
         return centroid
     
-def classify_iris(val :float) -> str:
-    if val <= 33.3:
-        return "Setosa"
-    elif val > 33.3 and val <= 66.6:
-        return "Versicolor"
-    else:
-        return "Virginica"
+# def classify_iris(val :float) -> str:
+#     if val <= 33.3:
+#         return "Setosa"
+#     elif val > 33.3 and val <= 66.6:
+#         return "Versicolor"
+#     else:
+#         return "Virginica"
