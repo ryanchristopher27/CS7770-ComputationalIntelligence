@@ -8,8 +8,8 @@ import os
 
 def main():
     # numeric_example()
-    # iris_classification()
-    iris_classification_multiple_output_domains()
+    iris_classification()
+    # iris_classification_multiple_output_domains()
 
 
 def numeric_example() -> None:
@@ -22,12 +22,12 @@ def numeric_example() -> None:
     fis.create_trapezoid_mf("X", "A1", 0, 1, 3, 4, "i")
     fis.create_trapezoid_mf("X", "A2", 3, 4, 6, 7, "i")
     fis.create_trapezoid_mf("X", "A3", 6, 7, 9, 10, "i")
-    fis.plot_membership_functions("X", True, "plots/numeric_example/X_Domain_MFs.png")
+    fis.plot_membership_functions("X", True, "project_2_fuzzy_sets/mamdani/plots/numeric_example/X_Domain_MFs.png")
 
     fis.create_triangle_mf("Y", "B1", 0, 2, 4, "o")
     fis.create_triangle_mf("Y", "B2", 3, 5, 7, "o")
     fis.create_triangle_mf("Y", "B3", 6, 8, 10, "o")
-    fis.plot_membership_functions("Y", True, "plots/numeric_example/Y_Domain_MFs.png")
+    fis.plot_membership_functions("Y", True, "project_2_fuzzy_sets/mamdani/plots/numeric_example/Y_Domain_MFs.png")
 
     fis.create_rule("Rule1", ["A1"], "B1")
     fis.create_rule("Rule2", ["A2"], "B2")
@@ -36,13 +36,13 @@ def numeric_example() -> None:
     test_input_1 = {"X": 5}
     inf_1 = fis.evaluate_mamdani(test_input_1)
     class_1 = fis.defuzzification_mamdani([inf_1])
-    plot_evaluations(inf_1, 0, 10, 0.1, "X", class_1[0][0], True, "plots/numeric_example/Test_1_Output.png")
+    plot_evaluations(inf_1, 0, 10, 0.1, "X", class_1[0][0], True, "project_2_fuzzy_sets/mamdani/plots/numeric_example/Test_1_Output.png")
     print(f"Centroid Output 1: {class_1}")
 
     test_input_2 = {"X": 3.5}
     inf_2 = fis.evaluate_mamdani(test_input_2)
     class_2 = fis.defuzzification_mamdani([inf_2])
-    plot_evaluations(inf_2, 0, 10, 0.1, "X", class_2[0][0], True, "plots/numeric_example/Test_2_Output.png")
+    plot_evaluations(inf_2, 0, 10, 0.1, "X", class_2[0][0], True, "project_2_fuzzy_sets/mamdani/plots/numeric_example/Test_2_Output.png")
     print(f"Centroid Output 2: {class_2}")
     
 def iris_classification() -> None:
@@ -132,7 +132,7 @@ def iris_classification() -> None:
 
     print(f"Accuracy: {accuracy}%")
 
-    # plot_confusion_matrix(Y, iris_classification, True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/confusion_matrix.png")
+    plot_confusion_matrix(Y, iris_classification, True, "project_2_fuzzy_sets/mamdani/plots/iris_single_output_domain/confusion_matrix.png")
 
 
 # Iris Classification With Multiple Output Domains
