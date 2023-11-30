@@ -21,8 +21,8 @@ from helpers import display_confusion_matrix
 
 
 def main():
-    # heart_disease_classification()
-    kaggle_example()
+    heart_disease_classification()
+    # kaggle_example()
 
 # Heart Disease Dataset
     # 13 Features
@@ -52,8 +52,9 @@ def heart_disease_classification():
 
     X_train, X_test, y_train, y_test = train_test_split(X_HD, y_HD, test_size=0.2)
 
-    D_in, H1, H2, D_out = 13, 13, 13, 5
-    net = MLP_HD(D_in, H1, H2, D_out)
+    D_in, H1, H2, H3, D_out = 13, 64, 128, 256, 5
+    net = MLP_HD(D_in, H1, H2, H3, D_out)
+    # net = HeartDiseaseNN()
 
     # def criterion(out, label):
     #     return (label - out)**2
@@ -73,11 +74,12 @@ def heart_disease_classification():
     # net = net.float()
 
     # Declare Hyper-Parameters
-    epochs = 100
-    learning_rate = 0.01
-    momentum = 0.2
+    epochs = 1000
+    learning_rate = 0.001
+    momentum = 0.5
 
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
+    # optimizer = optim.Adam(net.parameters(), lr=learning_rate)
     # criterion = torch.nn.BCELoss()
     criterion = torch.nn.CrossEntropyLoss()
 
@@ -117,7 +119,7 @@ def heart_disease_classification():
         if y_test_one_hot[k,int(predictions_classified[k])] == 1:
             correct += 1
 
-    print(f'Accuracy: {correct/len(predictions * 100) :.4f}%')
+    print(f'Accuracy: {correct/len(predictions) * 100 :.4f}%')
 
     y_test = pd.Series(y_test.num)
 
