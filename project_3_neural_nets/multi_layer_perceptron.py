@@ -87,3 +87,42 @@ class MLP_Mushroom(nn.Module):
         y_pred = F.sigmoid(self.linear4(h3_pred)) # network_output = dot(h,w2)
         # y_pred = self.layers(x)
         return y_pred
+    
+
+class MLP_Adult(nn.Module):
+    def __init__(self, D_in, H1, H2, H3, H4, D_out):
+        super(MLP_Adult, self).__init__()
+        self.linear1 = nn.Linear(D_in, H1) # input to hidden layer
+        self.linear2 = nn.Linear(H1, H2)
+        self.linear3 = nn.Linear(H2, H3)
+        self.linear4 = nn.Linear(H3, H4)
+        self.linear5 = nn.Linear(H4, D_out) # hidden layer to output
+
+    def forward(self, x):
+        h1_pred = F.relu(self.linear1(x))
+        h2_pred = F.relu(self.linear2(h1_pred))
+        h3_pred = F.relu(self.linear3(h2_pred))
+        h4_pred = F.relu(self.linear4(h3_pred))
+        y_pred = F.sigmoid(self.linear5(h4_pred)) # network_output = dot(h,w2)
+        # y_pred = self.layers(x)
+        return y_pred
+    
+class MLP_Cal_House(nn.Module):
+    def __init__(self, D_in, H1, H2, H3, H4, D_out):
+        super(MLP_Cal_House, self).__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(D_in, H1),
+            nn.ReLU(),
+            nn.Linear(H1,H2),
+            nn.ReLU(),            
+            nn.Linear(H2, H3),
+            nn.ReLU(),            
+            nn.Linear(H3, H4),
+            nn.ReLU(),            
+            nn.Linear(H4, D_out),
+            nn.Sigmoid()
+        )  
+
+    def forward(self, x):
+        y_pred = self.layers(x)
+        return y_pred

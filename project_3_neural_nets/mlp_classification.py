@@ -43,6 +43,9 @@ def heart_disease_classification():
         if isnan:
             X_HD = X_HD.drop(index=row)
             y_HD = y_HD.drop(index=row)
+
+    for column in X_HD.columns:
+        X_HD[column] = X_HD[column] / X_HD[column].abs().max()
     
     # metadata 
     # print(heart_disease.metadata) 
@@ -74,7 +77,7 @@ def heart_disease_classification():
     # net = net.float()
 
     # Declare Hyper-Parameters
-    epochs = 1000
+    epochs = 100
     learning_rate = 0.001
     momentum = 0.5
 
@@ -82,6 +85,9 @@ def heart_disease_classification():
     # optimizer = optim.Adam(net.parameters(), lr=learning_rate)
     # criterion = torch.nn.BCELoss()
     criterion = torch.nn.CrossEntropyLoss()
+
+    model_loss = []
+    accuracies = []
 
     # Train
     for epoch in tqdm(range(epochs)):
@@ -194,7 +200,8 @@ def kaggle_example():
 
     print(classification_report(y_test, preds_y))
 
-    confusion_matrix(y_test, preds_y)
+    labels = ['0', '1', '2', '3', '4']
+    confusion_matrix(y_test, preds_y, 5, )
 
 if __name__=="__main__":
     main()

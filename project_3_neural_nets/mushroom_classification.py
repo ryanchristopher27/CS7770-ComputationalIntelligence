@@ -17,7 +17,7 @@ from helpers import display_confusion_matrix, binary_prediction_classifier
 def main():
     mushroom_classification()
 
-# Heart Disease Dataset
+# Mushroom Dataset
     # 22 Features
     # 8124 Instances
 
@@ -29,9 +29,6 @@ def mushroom_classification():
     # data (as pandas dataframes) 
     X = mushroom.data.features 
     y = mushroom.data.targets 
-    
-    # print(mushroom.metadata) 
-    # print(mushroom.variables) 
 
     # Clean Data
     nan_rows = X.isna().any(axis=1)
@@ -60,7 +57,7 @@ def mushroom_classification():
     # y_test = y_test.reset_index(drop=True)
 
     # Declare Hyper-Parameters
-    epochs = 10
+    epochs = 20
     learning_rate = 0.001
     momentum = 0.5
 
@@ -116,7 +113,6 @@ def mushroom_classification():
             predictions.append(output.item())
 
             prediction = binary_prediction_classifier(output.item())
-            # prediction = 1 if output.item() >= 0.5 else 0
             predictions_classified.append(prediction)
             
             if prediction == y_test[i]:

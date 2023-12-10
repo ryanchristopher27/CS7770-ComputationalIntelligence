@@ -19,3 +19,11 @@ def display_confusion_matrix(predictions, y, size, labels):
 
 def binary_prediction_classifier(prediction :float):
     return 1 if prediction >= 0.5 else 0
+
+
+def plot_data_line(data, plot_label, x_label, y_label, legend_loc) -> None:
+    plt.plot(data, label=plot_label)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.legend(loc=legend_loc)
+    plt.show()
