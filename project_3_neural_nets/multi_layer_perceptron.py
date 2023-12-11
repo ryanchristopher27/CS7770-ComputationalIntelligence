@@ -119,8 +119,45 @@ class MLP_Cal_House(nn.Module):
             nn.ReLU(),            
             nn.Linear(H3, H4),
             nn.ReLU(),            
-            nn.Linear(H4, D_out),
-            nn.Sigmoid()
+            nn.Linear(H4, D_out)
+        )  
+
+    def forward(self, x):
+        y_pred = self.layers(x)
+        return y_pred
+    
+class MLP_Cal_House_Leaky(nn.Module):
+    def __init__(self, D_in, H1, H2, H3, H4, D_out):
+        super(MLP_Cal_House_Leaky, self).__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(D_in, H1),
+            nn.LeakyReLU(),
+            nn.Linear(H1,H2),
+            nn.LeakyReLU(),            
+            nn.Linear(H2, H3),
+            nn.LeakyReLU(),            
+            nn.Linear(H3, H4),
+            nn.LeakyReLU(),            
+            nn.Linear(H4, D_out)
+        )  
+
+    def forward(self, x):
+        y_pred = self.layers(x)
+        return y_pred
+    
+class MLP_Cal_House_Sigmoid(nn.Module):
+    def __init__(self, D_in, H1, H2, H3, H4, D_out):
+        super(MLP_Cal_House_Sigmoid, self).__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(D_in, H1),
+            nn.Sigmoid(),
+            nn.Linear(H1,H2),
+            nn.Sigmoid(),            
+            nn.Linear(H2, H3),
+            nn.Sigmoid(),            
+            nn.Linear(H3, H4),
+            nn.Sigmoid(),            
+            nn.Linear(H4, D_out)
         )  
 
     def forward(self, x):

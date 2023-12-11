@@ -11,17 +11,103 @@ from sklearn.preprocessing import LabelEncoder
 
 from multi_layer_perceptron import MLP_Mushroom
 from ucimlrepo import fetch_ucirepo 
-from helpers import display_confusion_matrix, binary_prediction_classifier
+from helpers import *
 
 
 def main():
-    mushroom_classification()
+    learning_rate = 0.001
+    epochs = 50
+    optimizer = "SGD"
+    # _, _, _, _ = mushroom_classification(learning_rate, epochs, optimizer)
+    # epochs_experiment()
+    # learning_rate_experiment()
+    optimizer_experiment()
 
 # Mushroom Dataset
     # 22 Features
     # 8124 Instances
 
-def mushroom_classification():
+def epochs_experiment():
+    epochs = [5, 10, 50]
+
+    accuracies = {}
+    losses = {}
+    y_preds = {}
+    y_tests = {}
+    
+    for epoch in epochs:
+        accuracy, loss, y_pred, y_test = mushroom_classification(0.001, epoch, "SGD")
+        y_preds[epoch] = y_pred
+        y_tests[epoch] = y_test
+
+    labels = ['edible', 'poisonous']
+    for epoch in epochs:
+        display_confusion_matrix(pd.Series(y_preds[epoch]), pd.Series(y_tests[epoch]), 2, labels, f'{epoch} Epochs')
+
+
+
+def learning_rate_experiment():
+    learning_rates = [0.01, 0.001, 0.0001]
+
+    accuracies = {}
+    losses = {}
+    
+    for rate in learning_rates:
+        accuracy, loss, y_pred, y_test = mushroom_classification(rate, 20, "SGD")
+        accuracies[rate] = accuracy
+        losses[rate] = loss
+
+    for rate in learning_rates:
+        plt.plot(accuracies[rate], label=f'{rate} Accuracy')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend(loc='lower right')
+    plt.title('Accuracy Vs. Learning Rate')
+    plt.show()
+
+    for rate in learning_rates:
+        plt.plot(losses[rate], label=f'{rate} Loss')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend(loc='upper right')
+    plt.title('Loss Vs. Learning Rate')
+    plt.show()
+
+
+def optimizer_experiment():
+    optimizers = ["SGD", "ADAM"]
+
+    accuracies = {}
+    losses = {}
+    
+    for op in optimizers:
+        accuracy, loss, _, _ = mushroom_classification(0.001, 20, op)
+        accuracies[op] = accuracy
+        losses[op] = loss
+
+    for op in optimizers:
+        plt.plot(accuracies[op], label=f'{op} Accuracy')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend(loc='lower right')
+    plt.title('Accuracy Vs. Optimizer')
+    plt.show()
+
+    for op in optimizers:
+        plt.plot(losses[op], label=f'{op} Loss')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend(loc='upper right')
+    plt.title('Loss Vs. Optimizer')
+    plt.show()
+
+
+
+def mushroom_classification(lr, epochs, op):
     
     # fetch dataset 
     mushroom = fetch_ucirepo(id=73) 
@@ -57,12 +143,15 @@ def mushroom_classification():
     # y_test = y_test.reset_index(drop=True)
 
     # Declare Hyper-Parameters
-    epochs = 20
-    learning_rate = 0.001
+    # epochs = 20
+    learning_rate = lr
+    # learning_rate = 0.001
     momentum = 0.5
 
-    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
-    # optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+    if op == "SGD":
+        optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=momentum)
+    else:
+        optimizer = optim.Adam(net.parameters(), lr=learning_rate)
     # criterion = torch.nn.BCELoss()
     # criterion = torch.nn.CrossEntropyLoss()
     criterion = torch.nn.MSELoss()
@@ -72,12 +161,13 @@ def mushroom_classification():
     accuracies = []
 
     # Train
-    for epoch in range(epochs):
-        print('==='*30)
-        print(f'Epoch {epoch+1}/{epochs}')
+    for epoch in tqdm(range(epochs)):
+        # print('==='*30)
+        # print(f'Epoch {epoch+1}/{epochs}')
         number_correct = 0
         loss_total = 0
-        for i in tqdm(range(len(X_train))):
+        # for i in tqdm(range(len(X_train))):
+        for i in range(len(X_train)):
             X_var = Variable(torch.tensor(X_train.loc[i,:], dtype=torch.float))
             Y_var = Variable(torch.tensor([y_train[i]], dtype=torch.float))
             optimizer.zero_grad()
@@ -96,11 +186,11 @@ def mushroom_classification():
 
         model_loss.append(loss_total)
 
-    plt.plot(accuracies, label='Training Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend(loc='lower right')
-    plt.show()
+    # plt.plot(accuracies, label='Training Accuracy')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Accuracy')
+    # plt.legend(loc='lower right')
+    # plt.show()
 
     correct = 0
     predictions = []
@@ -119,17 +209,23 @@ def mushroom_classification():
                 correct += 1
 
     accuracy = correct / len(y_test) * 100
-    print(f'Accuracy: {accuracy:.4f}%')
+    # print(f'Accuracy: {accuracy:.4f}%')
 
-    plt.plot(model_loss, label='Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend(loc='lower right')
-    plt.show()
+    # plt.plot(model_loss, label='Loss')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.legend(loc='lower right')
+    # plt.title('Loss per Epoch')
+    # plt.show()
 
-    labels = ['edible', 'poisonous']
-    display_confusion_matrix(pd.Series(predictions_classified), pd.Series(y_test), 2, labels)
+    print(f'Results for {op}')
+    print_classification_stats(y_test, predictions_classified)
+    print('==='*30)
 
+    # labels = ['edible', 'poisonous']
+    # display_confusion_matrix(pd.Series(predictions_classified), pd.Series(y_test), 2, labels)
+
+    return accuracies, model_loss, predictions_classified, y_test
 
 if __name__=="__main__":
     main()
